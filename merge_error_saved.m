@@ -55,7 +55,7 @@ end
     
 full_list = ls;
 list = []; % files matching to the date information
-for i = 1 : length(full_list)
+for i = 1 : size(full_list,1)
     if strfind(full_list(i,:),date)
         if isempty(strfind(full_list(i,:),'autosave'))
             list = [list; full_list(i,:)];

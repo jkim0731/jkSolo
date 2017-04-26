@@ -3,17 +3,19 @@ behavior_base_dir = 'Z:\Data\2p\soloData\';
 mice = {'AH0648','AH0650','AH0651','AH0652','AH0653'};
 hf = cell(1,length(mice)); 
 correct_rate_100 = cell(1,length(mice));
+session_lengths = cell(1,length(mice));
+session_lengths_nomiss = cell(1,length(mice));
 for mouse = 1 : length(mice)
     d = [behavior_base_dir mice{mouse} '\'];
     cd(d)
     load('behavior.mat') % loading b of the mouse (all the sessions)
     hfm = []; % hit fa miss
-    session_lengths = zeros(length(b)-1,1);
-    session_lengths_nomiss = zeros(length(b)-1,1);
+    session_lengths{mouse} = zeros(length(b)-1,1);
+    session_lengths_nomiss{mouse} = zeros(length(b)-1,1);
     for i = 2 : length(b)
         hfm = [hfm; b{i}.hitTrialInds' + b{i}.faTrialInds' * 2 + b{i}.missTrialInds' * 3];
-        session_lengths(i-1) = length(b{i}.hitTrialInds);
-        session_lengths_nomiss(i-1) = length(b{i}.hitTrialNums) + length(b{i}.faTrialNums);
+        session_lengths{mouse}(i-1) = length(b{i}.hitTrialInds);
+        session_lengths_nomiss{mouse}(i-1) = length(b{i}.hitTrialNums) + length(b{i}.faTrialNums);
     end
     hf{mouse} = hfm; % hit & fa
     for i = length(hfm):-1:1
@@ -22,35 +24,45 @@ for mouse = 1 : length(mice)
         end
     end
     hf{mouse} = abs(hf{mouse}-2); % 1 for hit, 0 for miss    
-%     hfm = repmat(hfm,1,500);
-%     hfmws = zeros(length(hfm),700); % hit fa miss with sessions
-%     hfmws(:,201:end) = hfm+2;
-%     sessions = [];
-% 
-%     for i = 1 : length(session_lengths)
-%         if mod(i,2) == 1
-%             sessions = [sessions; ones(session_lengths(i),1)];
-%         else
-%             sessions = [sessions; ones(session_lengths(i),1)*2];
-%         end
+% %     hfm = repmat(hfm,1,500);
+% %     hfmws = zeros(length(hfm),700); % hit fa miss with sessions
+% %     hfmws(:,201:end) = hfm+2;
+% %     sessions = [];
+% % 
+% %     for i = 1 : length(session_lengths)
+% %         if mod(i,2) == 1
+% %             sessions = [sessions; ones(session_lengths(i),1)];
+% %         else
+% %             sessions = [sessions; ones(session_lengths(i),1)*2];
+% %         end
+% %     end
+% %     hfmws(:,1:200) = repmat(sessions,1,200);
+% % 
+% %     hfm_image = ind2rgb(hfmws,[0 0 0; 1 1 1; 0 1 0.5; 1 0 0.7; 0.8, 0.8, 0.8]);
+% %     figure, imshow(hfm_image)
+%     correct_rate_100{mouse} = zeros(length(hf{mouse}),1);
+%     for i = 100 : length(hf{mouse})
+%         correct_rate_100{mouse}(i) = sum(hf{mouse}(i-99:i));
 %     end
-%     hfmws(:,1:200) = repmat(sessions,1,200);
-% 
-%     hfm_image = ind2rgb(hfmws,[0 0 0; 1 1 1; 0 1 0.5; 1 0 0.7; 0.8, 0.8, 0.8]);
-%     figure, imshow(hfm_image)
-    correct_rate_100{mouse} = zeros(length(hf{mouse}),1);
-    for i = 100 : length(hf{mouse})
-        correct_rate_100{mouse}(i) = sum(hf{mouse}(i-99:i));
-    end
-    LearningEM(hf{mouse},ones(length(hf{mouse}),1),ones(length(hf{mouse}),1)/2);
+%     LearningEM(hf{mouse},ones(length(hf{mouse}),1),ones(length(hf{mouse}),1)/2);
 end
 
+%%
 figure, hold all
-max_trial_length = max(cellfun(@(x) length(x),hf));
 for i = 1 : length(mice)
-    plot(1:max_trial_length,correct_rate_100{i},'Color', [1 1 1] * (i/length(mice))* 0.5 + 0.5);
+    plot(1:length(hf{i}),correct_rate_100{i},'Color', [1 1 1] * (i/length(mice))* 0.5);
 end
-
+%%
+for trial_num = 1:5;
+figure, plot(1:length(hf{trial_num}),smooth(correct_rate_100{trial_num}),'k-','LineWidth',2), hold on
+plot(1:length(hf{trial_num}),ones(1,length(hf{trial_num}))*50,':','Color',[0.5 0.5 0.5])
+for i = 2 : length(session_lengths_nomiss{trial_num})
+    plot(ones(1,100)*sum(session_lengths_nomiss{trial_num}(1:i-1)),1:100,'b:','LineWidth',2)
+end
+ylim([20 100]), xlabel('Trial #'), ylabel('Correct Rate in 100 trials (%)')
+end
+%%
+save('20170413.mat', 'session_lengths', 'session_lengths_nomiss','-append')
 %%
 % flist = ls('*x.mat'); % these are sorted in ASCII dictionary order, so the sessions denoted by dates will be sorted.
 % for now, just pick up the last saved ones

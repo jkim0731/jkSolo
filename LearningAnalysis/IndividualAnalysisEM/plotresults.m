@@ -3,11 +3,10 @@
 load('resultsindividual');
  t=1:size(p,2)-1; 
 
- figure(1);  clf;
-
- 
+ figure  
  %plot learning curve
- subplot(211);  
+ %%
+ subplot(211)  
  plot(t, pmode(2:end),'r-');
  hold on;
  plot(t, p05(2:end),'k', t, p95(2:end), 'k');
