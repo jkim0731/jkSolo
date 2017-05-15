@@ -7,9 +7,21 @@ for i = 1 : length(mice)
     flist = dir('data_@*x.mat');
     
     b = cell(1,length(flist));
-    for j = 1 : length(flist)
-        session_name = sprintf('S%02d',j-1);
-        b{j} = Solo.BehavTrial2padArray(flist(j).name, session_name);
-    end    
+    if i == 4 % just for AH0652, there was an error
+        for j = 1 : length(flist)
+            if j == 1
+                session_name = sprintf('S%02d',j-1);
+            else
+                session_name = sprintf('S%02d',j); 
+            end
+            b{j} = Solo.BehavTrial2padArray(flist(j).name, session_name);
+        end    
+    else
+        for j = 1 : length(flist)
+            session_name = sprintf('S%02d',j-1);
+            b{j} = Solo.BehavTrial2padArray(flist(j).name, session_name);
+        end    
+    end
+        
     save('behavior.mat','b')
 end
