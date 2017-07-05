@@ -48,9 +48,9 @@ classdef BehavTrial2padArray < handle
     end
 %     
     methods (Access = public)
-        function obj = BehavTrial2padArray(x, session_name)
+        function obj = BehavTrial2padArray(x)
             %
-            % function obj = BehavTrialArray(x, session_name)
+            % function obj = BehavTrialArray(x)
             %
             % Input argument 'x' is either Solo file name string or
             % a structure from loaded Solo file.
@@ -66,7 +66,7 @@ classdef BehavTrial2padArray < handle
 
 
                 obj.mouseName = x.saved.SavingSection_MouseName;
-                obj.sessionName = session_name;
+                obj.sessionName = x.saved.SavingSection_SessionName;
 
                 n_trials = length(x.saved_history.AnalysisSection_NumTrials);
                 n=1;
@@ -80,7 +80,8 @@ classdef BehavTrial2padArray < handle
                 for k=1:n_trials
 
                     % Required arguments to BehavTrial2AFC_angdist():
-                    mouse_name = x.saved_history.SavingSection_MouseName{k};
+                    mouse_name = obj.mouseName;
+                    session_name = obj.sessionName;
                     trial_num = str2num(x.saved_history.AnalysisSection_NumTrials{k}(end-3:end));
                     trial_type = char([x.saved_history.SidesSection_previous_sides(k),x.saved_history.SidesSection_previous_dstrs(k)]); % 114 charcode for 'r', 108 for 'l'. 1 = S1 (right), 0 = S0 (left).
                     trial_correct = saved_hit_history(k); % 1 for correct, 0 for fa, -1 for miss.

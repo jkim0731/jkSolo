@@ -72,7 +72,7 @@ end
 % need to merge only saved and saved_history structs
 savefn = [list(1,1:end-5), 'x.mat'];
 for i = 1 : size(list,1)
-    if strfind(list(i,:),savefn);
+    if strfind(list(i,:),savefn)
         sprintf('%s is already post-processed',savefn)
         return
     end
