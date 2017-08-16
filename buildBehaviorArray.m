@@ -1,5 +1,5 @@
 mice = {'JK017','JK018','JK020'};
-base_dir = 'Z:\Data\2p\soloData\';
+base_dir = 'Y:\JK_temp\SoloData\';
 for i = 1 : length(mice)
 % for i = 2
     d = [base_dir mice{i} '\'];

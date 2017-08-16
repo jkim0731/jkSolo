@@ -11,8 +11,8 @@ full_list = ls;
 full_list = full_list(3:end,:);
 data_list = []; % files that are not autosaved
 for i = 1 : size(full_list,1)
-    if strfind(full_list(i,:),'autosave')
-    elseif strfind(full_list(i,:),'data_@pole_')
+    if contains(full_list(i,:),'autosave')
+    elseif contains(full_list(i,:),'data_@pole_')
         data_list = [data_list; full_list(i,:)];
     end
 end
