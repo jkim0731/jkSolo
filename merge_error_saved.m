@@ -60,8 +60,8 @@ end
 full_list = ls;
 list = []; % files matching to the date information
 for i = 1 : size(full_list,1)
-    if strfind(full_list(i,:),date)
-        if isempty(strfind(full_list(i,:),'autosave'))
+    if contains(full_list(i,:),date)
+        if ~contains(full_list(i,:),'autosave')
             list = [list; full_list(i,:)];
         end
     end
@@ -72,7 +72,7 @@ end
 % need to merge only saved and saved_history structs
 savefn = [list(1,1:end-5), 'x.mat'];
 for i = 1 : size(list,1)
-    if strfind(list(i,:),savefn);
+    if contains(list(i,:),savefn)
         sprintf('%s is already post-processed',savefn)
         return
     end
@@ -206,11 +206,11 @@ for i = 1 : size(list,1)
             % WILL BE REMOVED AFTER ~ 03/30/17 JK
             % temporary remedy for not having MotorsSection_previous_* for
             % trial #1 in 2port_angdist protocol
-            if str2num(date) < 170401
-                if strfind(result_savedfields{j},'MotorsSection_previous')
-                    saved_history.(result_savedfields{j}) = [saved_history.(result_savedfields{j})(1), saved_history.(result_savedfields{j})];
-                end
-            end
+%             if str2num(date) < 170401
+%                 if strfind(result_savedfields{j},'MotorsSection_previous')
+%                     saved_history.(result_savedfields{j}) = [saved_history.(result_savedfields{j})(1), saved_history.(result_savedfields{j})];
+%                 end
+%             end
 
             if isfield(saved_history,result_savedfields{j})
                 if ~isempty(saved_history.(result_savedfields{j})) 
