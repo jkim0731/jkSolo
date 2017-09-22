@@ -1,4 +1,4 @@
-mice = {'JZ0747'};
+mice = {'AH0648', 'AH0650', 'AH0651', 'AH0652', 'AH0653'};
 base_dir = 'Z:\Data\2p\soloData\';
 % for i = 1 : length(mice)
 for i = 5
