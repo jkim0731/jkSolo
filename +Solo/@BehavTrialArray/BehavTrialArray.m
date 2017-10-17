@@ -62,7 +62,7 @@ classdef BehavTrialArray < handle
                 for idx_fields = 1 : length(savedfields)
                     if strfind(savedfields{idx_fields,1}, 'hit_history')
                         saved_hit_history = savedfields{idx_fields,1};
-                        idx_fields = length(savedfields);
+                        break
                     end
                 end
                 
@@ -103,8 +103,8 @@ classdef BehavTrialArray < handle
                     else
                         motor_position = [];
                     end
-                    nogo_position = x.saved_history.MotorsSection_nogo_position{k}; % In stepper motor steps.
-                    go_position = x.saved_history.MotorsSection_go_position{k}; % In stepper motor steps.
+%                     nogo_position = x.saved_history.MotorsSection_nogo_position{k}; % In stepper motor steps.
+%                     go_position = x.saved_history.MotorsSection_go_position{k}; % In stepper motor steps.
 
                     if ismember(session_type, {'Discrim','Program-Timed-Discrim','Detection'})  % For now limit only to Discrim trials
                         % 'Program-Timed-Discrim' was old name for

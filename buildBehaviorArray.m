@@ -1,9 +1,12 @@
-mice = {'JK017','JK018','JK020'};
-base_dir = 'Y:\JK_temp\SoloData\';
+
+mice = {'AHtest'};
+base_dir = 'Z:\Data\touch_detection\behavior';
+cd(base_dir)
+merge_error_saved_dir
 for i = 1 : length(mice)
 % for i = 2
-    d = [base_dir mice{i} '\'];
-    cd(d)    
+%     d = [base_dir mice{i} '\'];
+%     cd(d)    
     merge_error_saved_dir
     flist = dir('data_@*x.mat');
     
@@ -30,7 +33,8 @@ for i = 1 : length(mice)
 %     else
         for j = 1 : length(flist)            
 %             session_name = sprintf('S%02d',j-1);
-            b{j} = Solo.BehavTrial2padArray(flist(j).name);
+%             b{j} = Solo.BehavTrial2padArray(flist(j).name);
+            b{j} = Solo.BehavTrialArray(flist(j).name,'asdf');
         end    
 %     end
         
