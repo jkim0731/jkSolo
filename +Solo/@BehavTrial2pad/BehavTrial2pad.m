@@ -267,8 +267,8 @@ classdef BehavTrial2pad < handle
         function value = get.rewardTime(obj)% State 47 (left) or 48 (right) entries and exits
             trial_events = obj.trialEvents;
             
-            rowIndStart = find(trial_events(:,1)== (47 | 48) & trial_events(:,2)==0, 1, 'first');
-            rowIndStop = find(trial_events(:,1)== (47 | 48) & trial_events(:,2)==5, 1, 'first'); % Timeout code = 5;
+            rowIndStart = find( ((trial_events(:,1)== 47) | (trial_events(:,1)== 48)) & trial_events(:,2)==0, 1, 'first');
+            rowIndStop = find( ((trial_events(:,1)== 47) | (trial_events(:,1)== 48)) & trial_events(:,2)==5, 1, 'first'); % Timeout code = 5;
 
             if ~isempty(rowIndStart)
                 value = [trial_events(rowIndStart, 3), trial_events(rowIndStop, 3)] - obj.trialStartTime;
@@ -342,7 +342,7 @@ classdef BehavTrial2pad < handle
             end
         end
 
-        function value = get.samplingPeriodTime(obj)% State 42 entries and exits
+        function value = get.samplingPeriodTime(obj)% State 42 entries and exits % for now, it's a combination between pole up and sampling period time. True sampling period time can only be determined after pole movement time detection.
             trial_events = obj.trialEvents;
             rowIndStart = find(trial_events(:,1)==42 & trial_events(:,2)==0, 1, 'first');
             rowIndStop = find(trial_events(:,1)==42 & trial_events(:,2)==5, 1, 'first'); % Timeout code = 5;
@@ -365,8 +365,8 @@ classdef BehavTrial2pad < handle
         end
 
 
-        function value = get.poleUpOnsetTime(obj) % State 43 entry % pole presentation
-            rowInd = find(obj.trialEvents(:,1)==43,1);
+        function value = get.poleUpOnsetTime(obj) % State 42 entry % pole presentation
+            rowInd = find(obj.trialEvents(:,1)==42,1);
             if ~isempty(rowInd)
                 value = obj.trialEvents(rowInd, 3) - obj.trialStartTime;
             else
@@ -374,8 +374,8 @@ classdef BehavTrial2pad < handle
             end
         end
           
-        function value = get.poleDownOnsetTime(obj) % State 45 entry % pole out
-            rowInd = find(obj.trialEvents(:,1)==45,1);
+        function value = get.poleDownOnsetTime(obj) % State 44,45,52 entry % pole out
+            rowInd = find(obj.trialEvents(:,1)==44 | obj.trialEvents(:,1)==45 | obj.trialEvents(:,1)==52,1);
             if ~isempty(rowInd)
                 value = obj.trialEvents(rowInd, 3) - obj.trialStartTime;
             else
