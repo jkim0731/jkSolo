@@ -156,7 +156,7 @@ switch action
        case 'Piezo stimulation' % 10 Hz 2 sec for now 2017/10/03
            stm = [stm;
                b    b   b   b   b+1 5    0       0   ; ... % 5 sec baseline
-               b+1  b+1 b+1 b+1 35 2   slid+durid    0   ]; % ephus stimulation by slid, TTL0 by slid and TTL1 by durid for TPM
+               b+1  b+1 b+1 b+1 35 4   slid+durid    0   ]; % ephus stimulation by slid, TTL0 by slid and TTL1 by durid for TPM
                
 %        case 'Beam-Break-Indicator'
 %            stm = [stm ;
@@ -271,24 +271,49 @@ switch action
                    pas = sRCaT;
                end
            end
-               
-           stm = [stm ;
-               %LinSt   LoutSt   RinSt    RoutSt   TimeupSt Time            Dou             Aou  (Dou is bitmask format)
-               % line b (sBC = b = 40 @ 41st row of the final stm)
-               sBC      sBC      sBC      sBC      101      .01             slid            0; ... % 40 sBC: bitcode. slid will evoke TTL0 signal to scanbox. concurrent with durid evoking up event of TTL1 (resulting in event type 3 in scanbox) 
-               sPrTP    sPrTP    sPrTP    sPrTP    sPMS     prep_t          0               0; ... % 41 sPrPT: pretrial pause / pzscid for piezo buzzer 2016/05/29 JK -> removed on 2017/10/16. Effective from 2017/10/17.
-               onLickS  onLickS  onLickS  onLickS  sPrAP    pr_t+sp_t       pvid            0; ... % 42 sPMS: pole move & sample period % onLickS = sPMS @ line 235
-               onlickL  onlickL  onlickR  onlickR  sLoMi    ap_t            pvid            0; ... % 43 sPrAP: Answer period time
-               sLoMi    sLoMi    sLoMi    sLoMi    sPoTP    0.001           0               0; ... % 44 sLoMi: log miss/ignore
-               sPoTP    sPoTP    sPoTP    sPoTP    201      postp_t         0               0; ... % 45 sPoTP: posttrial pause; 201 is for turning the pole 90 again after each trial.
-               sPun     sPun     sPun     sPun     sWrong   puw_t           pvid+pzscid     0; ... % 46 sPun: punish & pps = sPoTP @ line 203 Piezo sound cue to let the animal know that it was wrong. 2017/10/17.
-               sRwL     sRwL     sRwL     sRwL     sRCol    water_t         pvid+wvLid      0; ... % 47 sRwL: reward left
-               sRwR     sRwR     sRwR     sRwR     sRCol    water_t         pvid+wvRid      0; ... % 48 sRwR: reward right                      
-               sRCaT    sRCaT    sRCaT    sRCaT    sPoTP    0.001           pvid            0; ... % 49 sRCaT: to log unrewarded correct trials              
-               sRCol    sRCol    sRCol    sRCol    sPoTP    rcoll_t         pvid            0; ... % 50 sRCol: give animal time to collect reward              
-               sRDel    sRDel    sRDel    sRDel    sPun     0.001           pvid            0; ... % 51 sRDel: restart delay              
-               sWrong   sWrong   sWrong   sWrong   pps      rcoll_t-puw_t   0               0; ... % 52 sWrong: Additional state after pole went down to match the timing between wrong and right. 
-               ];
+
+           if puw_t < 0
+               puw_t = 0;
+           end
+           
+           if rcoll_t - puw_t > 0           
+               stm = [stm ;
+                   %LinSt   LoutSt   RinSt    RoutSt   TimeupSt Time            Dou             Aou  (Dou is bitmask format)
+                   % line b (sBC = b = 40 @ 41st row of the final stm)
+                   sBC      sBC      sBC      sBC      101      .01             slid            0; ... % 40 sBC: bitcode. slid will evoke TTL0 signal to scanbox. concurrent with durid evoking up event of TTL1 (resulting in event type 3 in scanbox) 
+    %                sPrTP    sPrTP    sPrTP    sPrTP    sPMS     prep_t          0               0; ... % 41 sPrPT: pretrial pause / pzscid for piezo buzzer 2016/05/29 JK -> removed on 2017/10/16. Effective from 2017/10/17.
+                   sPrTP    sPrTP    sPrTP    sPrTP    sPMS     prep_t          pzscid          0; ... % 41 sPrPT: pretrial pause / pzscid for piezo buzzer 2016/05/29 JK -> removed on 2017/10/16. Effective from 2017/10/17.               
+                   onLickS  onLickS  onLickS  onLickS  sPrAP    pr_t+sp_t       pvid            0; ... % 42 sPMS: pole move & sample period % onLickS = sPMS @ line 235
+                   onlickL  onlickL  onlickR  onlickR  sLoMi    ap_t            pvid            0; ... % 43 sPrAP: Answer period time
+                   sLoMi    sLoMi    sLoMi    sLoMi    sPoTP    0.001           0               0; ... % 44 sLoMi: log miss/ignore
+                   sPoTP    sPoTP    sPoTP    sPoTP    201      postp_t         0               0; ... % 45 sPoTP: posttrial pause; 201 is for turning the pole 90 again after each trial.
+    %                sPun     sPun     sPun     sPun     sWrong   puw_t           pvid+pzscid     0; ... % 46 sPun: punish & pps = sPoTP @ line 203 Piezo sound cue to let the animal know that it was wrong. 2017/10/17.
+                   sPun     sPun     sPun     sPun     sWrong   puw_t+water_t   pvid            0; ... % 46 sPun: punish & pps = sPoTP @ line 203 Piezo sound cue to let the animal know that it was wrong. 2017/10/17.               
+                   sRwL     sRwL     sRwL     sRwL     sRCol    water_t         pvid+wvLid      0; ... % 47 sRwL: reward left
+                   sRwR     sRwR     sRwR     sRwR     sRCol    water_t         pvid+wvRid      0; ... % 48 sRwR: reward right                      
+                   sRCaT    sRCaT    sRCaT    sRCaT    sPoTP    0.001           pvid            0; ... % 49 sRCaT: to log unrewarded correct trials              
+                   sRCol    sRCol    sRCol    sRCol    sPoTP    rcoll_t         pvid            0; ... % 50 sRCol: give animal time to collect reward              
+                   sRDel    sRDel    sRDel    sRDel    sPun     0.001           pvid            0; ... % 51 sRDel: restart delay              
+                   sWrong   sWrong   sWrong   sWrong   pps      rcoll_t-puw_t   0               0; ... % 52 sWrong: Additional state after pole went down to match the timing between wrong and right. 
+                   ];
+           else
+               stm = [stm ;
+                   %LinSt   LoutSt   RinSt    RoutSt   TimeupSt Time            Dou             Aou  (Dou is bitmask format)
+                   % line b (sBC = b = 40 @ 41st row of the final stm)
+                   sBC      sBC      sBC      sBC      101      .01             slid            0; ... % 40 sBC: bitcode. slid will evoke TTL0 signal to scanbox. concurrent with durid evoking up event of TTL1 (resulting in event type 3 in scanbox) 
+                   sPrTP    sPrTP    sPrTP    sPrTP    sPMS     prep_t          pzscid          0; ... % 41 sPrPT: pretrial pause / pzscid for piezo buzzer 2016/05/29 JK -> removed on 2017/10/16. Effective from 2017/10/17.               
+                   onLickS  onLickS  onLickS  onLickS  sPrAP    pr_t+sp_t       pvid            0; ... % 42 sPMS: pole move & sample period % onLickS = sPMS @ line 235
+                   onlickL  onlickL  onlickR  onlickR  sLoMi    ap_t            pvid            0; ... % 43 sPrAP: Answer period time
+                   sLoMi    sLoMi    sLoMi    sLoMi    sPoTP    0.001           0               0; ... % 44 sLoMi: log miss/ignore
+                   sPoTP    sPoTP    sPoTP    sPoTP    201      postp_t         0               0; ... % 45 sPoTP: posttrial pause; 201 is for turning the pole 90 again after each trial.
+                   sPun     sPun     sPun     sPun     pps      puw_t+water_t-0.001   pvid            0; ... % 46 sPun: punish & pps = sPoTP @ line 203 Piezo sound cue to let the animal know that it was wrong. 2017/10/17.               
+                   sRwL     sRwL     sRwL     sRwL     sRCol    water_t         pvid+wvLid      0; ... % 47 sRwL: reward left
+                   sRwR     sRwR     sRwR     sRwR     sRCol    water_t         pvid+wvRid      0; ... % 48 sRwR: reward right                      
+                   sRCaT    sRCaT    sRCaT    sRCaT    sPoTP    0.001           pvid            0; ... % 49 sRCaT: to log unrewarded correct trials              
+                   sRCol    sRCol    sRCol    sRCol    sPoTP    rcoll_t         pvid            0; ... % 50 sRCol: give animal time to collect reward              
+                   sRDel    sRDel    sRDel    sRDel    sPun     0.001           pvid            0; ... % 51 sRDel: restart delay              
+                   ];               
+           end
     
            %------ Signal trial number on digital output given by 'slid':
            % Requires that states 101 through 101+2*numbits be reserved

@@ -181,6 +181,7 @@ function [x, y] = SidesSection(obj, action, x, y)
               next_side = '';
              if strcmp(Distractor,'On'); if rand(1)<=ldp; next_dstr = 'c'; else next_dstr = 'f'; end; 
              elseif strcmp(Distractor, 'Continuous'); next_dstr = 'a';
+             elseif strcmp(Distractor, 'Discrete'); next_dstr = 'a';                 
              else next_dstr = 'n'; 
              end
               % do we have enough CONSECUTIVE errors on eitherside
@@ -265,6 +266,7 @@ function [x, y] = SidesSection(obj, action, x, y)
               nTrials = ntbc; % how many per side to use
               if strcmp(Distractor,'On'); if rand(1)<=ldp; next_dstr = 'c'; else next_dstr = 'f'; end; 
               elseif strcmp(Distractor, 'Continuous'); next_dstr = 'a';
+              elseif strcmp(Distractor, 'Discrete'); next_dstr = 'a';
               else next_dstr = 'n'; 
               end
               rT = find(previous_sides == 'r');
@@ -303,6 +305,7 @@ function [x, y] = SidesSection(obj, action, x, y)
              if rand(1)<=lpp, next_side = 'l'; else next_side = 'r'; end;
              if strcmp(Distractor,'On'); if rand(1)<=ldp; next_dstr = 'c'; else next_dstr = 'f'; end; 
              elseif strcmp(Distractor, 'Continuous'); next_dstr = 'a';
+             elseif strcmp(Distractor, 'Discrete'); next_dstr = 'a';                 
              else next_dstr = 'n'; 
              end
           else 
@@ -316,6 +319,7 @@ function [x, y] = SidesSection(obj, action, x, y)
                 
                 if strcmp(Distractor,'On'); if rand(1)<=ldp; next_dstr = 'c'; else next_dstr = 'f'; end; 
                 elseif strcmp(Distractor, 'Continuous'); next_dstr = 'a';
+                elseif strcmp(Distractor, 'Discrete'); next_dstr = 'a';
                 else next_dstr = 'n'; 
                 end
              else
@@ -348,6 +352,8 @@ function [x, y] = SidesSection(obj, action, x, y)
         end;
     elseif strcmp(Distractor, 'Continuous')
         next_dstr = 'a';
+    elseif strcmp(Distractor, 'Discrete')
+        next_dstr = 'a';        
     else next_dstr = 'n';
     end
       
@@ -378,7 +384,7 @@ function [x, y] = SidesSection(obj, action, x, y)
          error('Don''t have next side chosen! Did you run choose_next_side?');
       end;
       x = previous_sides(length(previous_sides));
-      if strcmp(Distractor,'On') || strcmp(Distractor, 'Continuous')
+      if strcmp(Distractor,'On') || strcmp(Distractor, 'Continuous') || strcmp(Distractor, 'Discrete')
           y = previous_dstrs(length(previous_dstrs));
       end
       return;
@@ -387,7 +393,7 @@ function [x, y] = SidesSection(obj, action, x, y)
     case 'update_plot',     % --------- UPDATE_PLOT ------
       if ~isempty(value(previous_plot)), delete(previous_plot(:)); end;
       if isempty(previous_sides), return; end;
-      if strcmp(Distractor,'On') || strcmp(Distractor, 'Continuous')
+      if strcmp(Distractor,'On') || strcmp(Distractor, 'Continuous') || strcmp(Distractor, 'Discrete')
           if isempty(previous_dstrs), return; end;
       end
       
@@ -551,7 +557,46 @@ function [x, y] = SidesSection(obj, action, x, y)
               maxx = n_done_trials + 2; if maxx <= ntrials, maxx = ntrials+2; end;
               set(value(myaxes), 'Xlim', [minx, maxx]);
               drawnow;
+              
+          case 'Discrete' % same as in case of 'Continuous', just copied it. 2017/10/20 JK.
+              ps = value(previous_sides);
+              if ps(end)=='l'
+                 hb = line(length(previous_sides), 3, 'Parent', value(myaxes));
+              else                         
+                 hb = line(length(previous_sides), 2, 'Parent', value(myaxes));
+              end;
+              set(hb, 'Color', 'b', 'Marker', '.', 'LineStyle', 'none');
 
+              % GEREN markers for correct
+              xgreen = find(hit_history == 1);
+              lefts  = find(previous_sides(xgreen) == 'l');
+              rghts  = find(previous_sides(xgreen) == 'r');
+              ygreen = zeros(size(xgreen)); ygreen(lefts) = 3; ygreen(rghts) = 2;
+              hg = line(xgreen, ygreen, 'Parent', value(myaxes));
+              set(hg, 'Color', 'g', 'Marker', '.', 'LineStyle', 'none'); 
+
+              % RED markers for incorrect
+              xred  = find(hit_history == 0);
+              lefts = find(previous_sides(xred) == 'l');
+              rghts = find(previous_sides(xred) == 'r');
+              yred = zeros(size(xred)); yred(lefts) = 3; yred(rghts) = 2;
+              hr = line(xred, yred, 'Parent', value(myaxes));
+              set(hr, 'Color', 'r', 'Marker', '.', 'LineStyle', 'none'); 
+
+              % BLACK x for miss/ignore
+              xblack  = find(hit_history == -1);
+              lefts = find(previous_sides(xblack) == 'l');
+              rghts = find(previous_sides(xblack) == 'r');
+              yblack = zeros(size(xblack)); yblack(lefts) = 3; yblack(rghts) = 2;
+              hk = line(xblack, yblack, 'Parent', value(myaxes));
+              set(hk, 'Color', 'k', 'Marker', 'x', 'LineStyle', 'none'); 
+
+              previous_plot.value = [hb ; hr; hg ; hk];
+
+              minx = n_done_trials - ntrials; if minx < 0, minx = 0; end;
+              maxx = n_done_trials + 2; if maxx <= ntrials, maxx = ntrials+2; end;
+              set(value(myaxes), 'Xlim', [minx, maxx]);
+              drawnow;
       end
       % Auto-trainer ----
       

@@ -266,6 +266,18 @@ switch action
                 end
                 next_pole_sign = 'm'; 
                 ap_offset_factor_dist = (next_pole_dist - value(far_dist)) / (value(near_dist) - value(far_dist));
+            elseif strcmp(TaskTarget, 'RadialDistance-Discrete')
+                discrete_rand = [0,0.25,0.5];
+                rand_ind = ceil(rand*3);
+                if next_side == 'r'
+                    next_pole_dist = value(far_dist) + discrete_rand(rand_ind) * (value(near_dist) - value(far_dist));
+                elseif next_side == 'l'
+                    next_pole_dist = value(near_dist) - discrete_rand(rand_ind) * (value(near_dist) - value(far_dist));
+                else 
+                    error('un-recognized type of choice (left or right)');
+                end
+                next_pole_sign = 'm'; 
+                ap_offset_factor_dist = (next_pole_dist - value(far_dist)) / (value(near_dist) - value(far_dist));
             else
                 error('un-recognized type for task (angle or radial distance)');
             end
@@ -342,6 +354,27 @@ switch action
                 end
                 ap_offset_factor_dist = (next_pole_dist - value(far_dist)) / (value(near_dist) - value(far_dist));
 
+            elseif strcmp(TaskTarget, 'Angle-Discrete')
+                if next_side == 'r'
+                    next_pole_sign = 'dr'; % random-discrete-right
+                elseif next_side == 'l'
+                    next_pole_sign = 'dl'; % random-discrete-left
+                else
+                    error('un-recognized type of choice (left or right)');
+                end
+                if next_dstr == 'c'
+                    next_pole_dist = value(near_dist);
+                elseif next_dstr == 'f'
+                    next_pole_dist = value(far_dist);
+                elseif next_dstr == 'n' || 'a' % when an error occurred, set next_dstr again.
+                    if rand < 0.5; next_dstr = 'c'; next_pole_dist = value(near_dist);
+                    else next_dstr = 'f'; next_pole_dist = value(far_dist); 
+                    end                    
+                else% no next_dstr
+                    error('No distractor specified')
+                end
+                ap_offset_factor_dist = (next_pole_dist - value(far_dist)) / (value(near_dist) - value(far_dist));                
+                
             elseif strcmp(TaskTarget, 'RadialDistance-Continuous')
                 if next_side == 'r'
                     next_pole_dist = value(far_dist) + rand/2 * (value(near_dist) - value(far_dist));
@@ -363,6 +396,29 @@ switch action
                     error('No distractor specified')
                 end
                 ap_offset_factor_dist = (next_pole_dist - value(far_dist)) / (value(near_dist) - value(far_dist));
+                
+            elseif strcmp(TaskTarget, 'RadialDistance-Discrete')
+                discrete_rand = [0,0.25,0.5];
+                rand_ind = ceil(rand*3);
+                if next_side == 'r'
+                    next_pole_dist = value(far_dist) + discrete_rand(rand_ind) * (value(near_dist) - value(far_dist));
+                elseif next_side == 'l'
+                    next_pole_dist = value(near_dist) - discrete_rand(rand_ind) * (value(near_dist) - value(far_dist));
+                else 
+                    error('un-recognized type of choice (left or right)');
+                end
+                if next_dstr == 'c'
+                    next_pole_sign = 'l'; 
+                elseif next_dstr == 'f'
+                    next_pole_sign = 'r'; 
+                elseif next_dstr == 'n' || 'a' % when an error occurred, set next_dstr again. 
+                    if rand < 0.5; next_dstr = 'c'; next_pole_sign = 'l';
+                    else next_dstr = 'f'; next_polse_sign = 'r';
+                    end                
+                else % no next_dstr
+                    error('No distractor specified')
+                end
+                ap_offset_factor_dist = (next_pole_dist - value(far_dist)) / (value(near_dist) - value(far_dist));                
                 
             else
                 error('un-recognized type for task (angle or radial distance)');
@@ -412,6 +468,18 @@ switch action
                 next_pole_dist = value(far_dist) + round(rand*(value(near_dist) - value(far_dist)));
                 
                 ap_offset_factor_dist = (next_pole_dist - value(far_dist)) / (value(near_dist) - value(far_dist));
+                
+            elseif strcmp(TaskTarget, 'Angle-Discrete')
+                if next_side == 'r'
+                    next_pole_sign = 'dr'; % random-discrete-right
+                elseif next_side == 'l'
+                    next_pole_sign = 'dl'; % random-discrete-left
+                else
+                    error('un-recognized type of choice (left or right)');
+                end
+                next_pole_dist = value(far_dist) + round(rand*(value(near_dist) - value(far_dist)));
+                ap_offset_factor_dist = (next_pole_dist - value(far_dist)) / (value(near_dist) - value(far_dist));     
+                
             
             elseif strcmp(TaskTarget, 'RadialDistance-Continuous')
                 if next_side == 'r'
@@ -421,9 +489,21 @@ switch action
                 else 
                     error('un-recognized type of choice (left or right)');
                 end
-                next_pole_sign = 'a'; % a meaning rAndom
-                
+                next_pole_sign = 'a'; % a meaning rAndom                
                 ap_offset_factor_dist = (next_pole_dist - value(far_dist)) / (value(near_dist) - value(far_dist));
+                
+            elseif strcmp(TaskTarget, 'RadialDistance-Discrete')
+                discrete_rand = [0,0.25,0.5];
+                rand_ind = ceil(rand*3);
+                if next_side == 'r'
+                    next_pole_dist = value(far_dist) + discrete_rand(rand_ind) * (value(near_dist) - value(far_dist));
+                elseif next_side == 'l'
+                    next_pole_dist = value(near_dist) - discrete_rand(rand_ind) * (value(near_dist) - value(far_dist));
+                else 
+                    error('un-recognized type of choice (left or right)');
+                end
+                next_pole_sign = 'a'; % a meaning rAndom
+                ap_offset_factor_dist = (next_pole_dist - value(far_dist)) / (value(near_dist) - value(far_dist));      
                 
             else
                 error('un-recognized type for task (angle or radial distance)');
@@ -431,6 +511,104 @@ switch action
 
             half_point = round(value(far_dist+near_dist)/2);
 
+        elseif strcmp(Distractor, 'Discrete')
+            [next_side, next_dstr] = SidesSection(obj,'get_next_side');
+            next_pole_angle = value(pole_angle);
+
+            if strcmp(TaskTarget,'Angle')
+                if next_side == 'r'
+                    next_pole_sign = 'r'; 
+                elseif next_side == 'l'
+                    next_pole_sign = 'l'; 
+                else
+                    error('un-recognized type of choice (left or right)');
+                end                
+                discrete_rand = linspace(0,1,5);
+                rand_ind = ceil(rand*5);
+                next_pole_dist = value(far_dist) + round(discrete_rand(rand_ind)*(value(near_dist) - value(far_dist)));
+                ap_offset_factor_dist = (next_pole_dist - value(far_dist)) / (value(near_dist) - value(far_dist));
+
+            elseif strcmp(TaskTarget,'RadialDistance')
+                if next_side == 'r'
+                    next_pole_dist = value(far_dist);
+                elseif next_side == 'l'
+                    next_pole_dist = value(near_dist);
+                else
+                    error('un-recognized type of choice (left or right)');
+                end
+                
+                if rand < 0.5
+                    next_pole_sign = 'dl';
+                else
+                    next_pole_sign = 'dr';
+                end
+                
+                ap_offset_factor_dist = (next_pole_dist - value(far_dist)) / (value(near_dist) - value(far_dist));
+            
+            elseif strcmp(TaskTarget, 'Angle-Continuous')
+                if next_side == 'r'
+                    next_pole_sign = 'ar'; % random-right
+                elseif next_side == 'l'
+                    next_pole_sign = 'al'; % random-left
+                else
+                    error('un-recognized type of choice (left or right)');
+                end
+
+                discrete_rand = linspace(0,1,5);
+                rand_ind = ceil(rand*length(discrete_rand));
+                next_pole_dist = value(far_dist) + round(discrete_rand(rand_ind)*(value(near_dist) - value(far_dist)));                
+                ap_offset_factor_dist = (next_pole_dist - value(far_dist)) / (value(near_dist) - value(far_dist));
+                
+            elseif strcmp(TaskTarget, 'Angle-Discrete')
+                if next_side == 'r'
+                    next_pole_sign = 'dr'; % random-discrete-right
+                elseif next_side == 'l'
+                    next_pole_sign = 'dl'; % random-discrete-left
+                else
+                    error('un-recognized type of choice (left or right)');
+                end
+                discrete_rand = linspace(0,1,5);
+                rand_ind = ceil(rand*length(discrete_rand));
+                next_pole_dist = value(far_dist) + round(discrete_rand(rand_ind)*(value(near_dist) - value(far_dist)));     
+                ap_offset_factor_dist = (next_pole_dist - value(far_dist)) / (value(near_dist) - value(far_dist));
+            
+            elseif strcmp(TaskTarget, 'RadialDistance-Continuous')
+                if next_side == 'r'
+                    next_pole_dist = value(far_dist) + round(rand*(value(near_dist) - value(far_dist)));
+                elseif next_side == 'l'
+                    next_pole_dist = value(far_dist) - round(rand*(value(near_dist) - value(far_dist)));
+                else 
+                    error('un-recognized type of choice (left or right)');
+                end
+                if rand < 0.5
+                    next_pole_sign = 'dl';
+                else
+                    next_pole_sign = 'dr';
+                end
+                ap_offset_factor_dist = (next_pole_dist - value(far_dist)) / (value(near_dist) - value(far_dist));
+                
+            elseif strcmp(TaskTarget, 'RadialDistance-Discrete')
+                discrete_rand = linspace(0,0.5,3);
+                rand_ind = ceil(rand*length(discrete_rand));
+                if next_side == 'r'
+                    next_pole_dist = value(far_dist) + discrete_rand(rand_ind) * (value(near_dist) - value(far_dist));
+                elseif next_side == 'l'
+                    next_pole_dist = value(near_dist) - discrete_rand(rand_ind) * (value(near_dist) - value(far_dist));
+                else 
+                    error('un-recognized type of choice (left or right)');
+                end
+                if rand < 0.5
+                    next_pole_sign = 'dl';
+                else
+                    next_pole_sign = 'dr';
+                end
+                ap_offset_factor_dist = (next_pole_dist - value(far_dist)) / (value(near_dist) - value(far_dist));      
+                
+            else
+                error('un-recognized type for task (angle or radial distance)');
+            end
+
+            half_point = round(value(far_dist+near_dist)/2);
             
         else % No information about Distractor
             error('No variable named Distractor exists')
@@ -449,11 +627,11 @@ switch action
         elseif strcmp(next_pole_sign, 'al') % continous angle target, with left reward
             next_absolute_angle = (180 - next_pole_angle) - floor(rand*(90-next_pole_angle)) + angle_offset;            
         elseif strcmp(next_pole_sign, 'dr') % discrete angle target set 1, with right reward
-            temp_angle_list = [0, 15, 30, 45];
+            temp_angle_list = linspace(0,45,4);
             temp_rand = ceil(rand * length(temp_angle_list));
             next_absolute_angle = next_pole_angle + temp_angle_list(temp_rand) + angle_offset;
         elseif strcmp(next_pole_sign, 'dl') % discrete angle target set 1, with left reward
-            temp_angle_list = [0, 15, 30, 45];
+            temp_angle_list = linspace(0,45,4);
             temp_rand = ceil(rand * length(temp_angle_list));
             next_absolute_angle = (180 - next_pole_angle) - temp_angle_list(temp_rand) + angle_offset;            
         else

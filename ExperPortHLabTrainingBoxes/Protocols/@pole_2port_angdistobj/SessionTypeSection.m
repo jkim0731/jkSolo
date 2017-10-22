@@ -52,18 +52,18 @@ function [x, y] = SessionTypeSection(obj, action, x, y)
       
       % The session can be either angle discrimination or radial distance
       % discrimination
-      MenuParam(obj, 'TaskTarget', {'Angle', 'RadialDistance', 'Angle-Continuous', 'Angle-Discrete', 'RadialDistance-Continuous'},'Angle',x,y); 
+      MenuParam(obj, 'TaskTarget', {'Angle', 'RadialDistance', 'Angle-Continuous', 'Angle-Discrete', 'RadialDistance-Continuous', 'RadialDistance-Discrete'},'Angle',x,y); 
       SoloFunctionAddVars('MotorsSection', 'ro_args', {'TaskTarget'});
       next_row(y,1);
       
       % Whether or not to have a distractor
-      MenuParam(obj, 'Distractor', {'Continuous','On', 'Off'},'Off',x,y); 
+      MenuParam(obj, 'Distractor', {'Discrete','Continuous','On', 'Off'},'Off',x,y); 
       SoloFunctionAddVars('MotorsSection', 'ro_args', {'Distractor'});
       SoloFunctionAddVars('SidesSection', 'ro_args', {'Distractor'});
       next_row(y,1);
       
       % For imaging
-      MenuParam(obj, 'TPM_imaging', {'Normal','Block'},'Block',x,y); 
+      MenuParam(obj, 'TPM_imaging', {'Normal','Block'},'Normal',x,y); 
       SoloFunctionAddVars('state35', 'ro_args', {'TPM_imaging'});
       next_row(y,1);
       
