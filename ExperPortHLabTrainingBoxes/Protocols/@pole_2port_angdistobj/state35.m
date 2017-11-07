@@ -26,7 +26,7 @@ if strcmp(SessionType, '2port-Discrim')
         block_length = 50;
         if floor((n_done_trials)/block_length) > floor((n_done_trials - 1)/block_length)
             judp('SEND', 7000, '68.181.112.192', [int8('L0') 10]); 
-            if mod(floor((n_done_trials)/block_length),block_length) 
+            if mod(floor((n_done_trials)/block_length),2) 
                 judp('SEND', 7000, '68.181.112.192', [int8('Mobjective_set_2') 10]); 
                 judp('SEND', 7000, '68.181.112.192', [int8('Rb') 10]); 
                 judp('SEND', 7000, '68.181.112.192', [int8('IB') 10]); 
