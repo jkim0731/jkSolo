@@ -172,19 +172,11 @@ for i = 1 : size(list,1)
             if ~isempty(strfind(result_savedfields{j},'_hit_history')) || ~isempty(strfind(result_savedfields{j},'_previous_')) % move every history data into saved_history
                 saved_history.(result_savedfields{j}) = saved.(result_savedfields{j});
             end
-            % WILL BE REMOVED AFTER ~ 03/30/17 JK
-            % temporary remedy for not having MotorsSection_previous_* for
-            % trial #1 in 2port_angdist protocol
-            if str2num(date) < 170401
-                if strfind(result_savedfields{j},'MotorsSection_previous')
-                    saved_history.(result_savedfields{j}) = [saved_history.(result_savedfields{j})(1), saved_history.(result_savedfields{j})];
-                end
-            end
 
             if isfield(saved_history,result_savedfields{j})
                 if ~isempty(saved_history.(result_savedfields{j}))
                     if length(saved_history.(result_savedfields{j})) < n_done_trials(1)
-                        sprintf('An error at calculating n_done_trials of trial #1');
+                        disp('An error at calculating n_done_trials of trial #1');
                         return;
                     else
                         if size(saved_history.(result_savedfields{j}),1) == 1 % transpose when 1 X #trials
@@ -203,19 +195,11 @@ for i = 1 : size(list,1)
             if ~isempty(strfind(result_savedfields{j},'_hit_history')) || ~isempty(strfind(result_savedfields{j},'_previous_')) % move every history data into saved_history
                 saved_history.(result_savedfields{j}) = saved.(result_savedfields{j});
             end
-            % WILL BE REMOVED AFTER ~ 03/30/17 JK
-            % temporary remedy for not having MotorsSection_previous_* for
-            % trial #1 in 2port_angdist protocol
-%             if str2num(date) < 170401
-%                 if strfind(result_savedfields{j},'MotorsSection_previous')
-%                     saved_history.(result_savedfields{j}) = [saved_history.(result_savedfields{j})(1), saved_history.(result_savedfields{j})];
-%                 end
-%             end
 
             if isfield(saved_history,result_savedfields{j})
                 if ~isempty(saved_history.(result_savedfields{j})) 
                     if length(saved_history.(result_savedfields{j})) < n_done_trials(i)
-                        sprintf('An error at calculating n_done_trials of trial #%d', i);
+                        disp('An error at calculating n_done_trials of trial #%d', i);
                         return
                     else
                         if size(saved_history.(result_savedfields{j}),1) == 1
