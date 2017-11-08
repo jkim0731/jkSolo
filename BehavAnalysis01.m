@@ -1,6 +1,6 @@
 %% 2017/04/12 Plotting total hit/wrong/miss, correct rate (100), learning EM, and session division
 behavior_base_dir = 'Z:\Data\2p\soloData\';
-mice = {'AH0648','AH0650','AH0651','AH0652','AH0653'};
+mice = {'JK025','JK027','JK030'};
 hf = cell(1,length(mice)); 
 correct_rate_100 = cell(1,length(mice));
 session_lengths = cell(1,length(mice));
@@ -10,12 +10,22 @@ for mouse = 1 : length(mice)
     cd(d)
     load('behavior.mat') % loading b of the mouse (all the sessions)
     hfm = []; % hit fa miss
-    session_lengths{mouse} = zeros(length(b)-1,1);
-    session_lengths_nomiss{mouse} = zeros(length(b)-1,1);
-    for i = 2 : length(b)
-        hfm = [hfm; b{i}.hitTrialInds' + b{i}.faTrialInds' * 2 + b{i}.missTrialInds' * 3];
-        session_lengths{mouse}(i-1) = length(b{i}.hitTrialInds);
-        session_lengths_nomiss{mouse}(i-1) = length(b{i}.hitTrialNums) + length(b{i}.faTrialNums);
+    session_names = cellfun(@(x) x.sessionName, b, 'UniformOutput', false);
+    session_names = cellfun(@(x) str2double(x(2:3)),session_names);
+    session_names = sort(session_names);
+    session_lengths{mouse} = zeros(max(session_names),1);
+    session_lengths_nomiss{mouse} = zeros(max(session_names),1);
+    
+    for ii = 1 : length(session_names)
+        if session_names(ii) > 0 
+            for i = 1 : length(b)
+                if str2double(b{i}.sessionName(2:3)) == session_names(ii)
+                    hfm = [hfm; b{i}.hitTrialInds' + b{i}.faTrialInds' * 2 + b{i}.missTrialInds' * 3];
+                    session_lengths{mouse}(i-1) = length(b{i}.hitTrialInds);
+                    session_lengths_nomiss{mouse}(i-1) = length(b{i}.hitTrialNums) + length(b{i}.faTrialNums);
+                end
+            end
+        end
     end
     hf{mouse} = hfm; % hit & fa
     for i = length(hfm):-1:1
@@ -24,42 +34,45 @@ for mouse = 1 : length(mice)
         end
     end
     hf{mouse} = abs(hf{mouse}-2); % 1 for hit, 0 for miss    
-% %     hfm = repmat(hfm,1,500);
-% %     hfmws = zeros(length(hfm),700); % hit fa miss with sessions
-% %     hfmws(:,201:end) = hfm+2;
-% %     sessions = [];
-% % 
-% %     for i = 1 : length(session_lengths)
-% %         if mod(i,2) == 1
-% %             sessions = [sessions; ones(session_lengths(i),1)];
-% %         else
-% %             sessions = [sessions; ones(session_lengths(i),1)*2];
-% %         end
-% %     end
-% %     hfmws(:,1:200) = repmat(sessions,1,200);
-% % 
-% %     hfm_image = ind2rgb(hfmws,[0 0 0; 1 1 1; 0 1 0.5; 1 0 0.7; 0.8, 0.8, 0.8]);
-% %     figure, imshow(hfm_image)
-%     correct_rate_100{mouse} = zeros(length(hf{mouse}),1);
-%     for i = 100 : length(hf{mouse})
-%         correct_rate_100{mouse}(i) = sum(hf{mouse}(i-99:i));
+%     hfm = repmat(hfm,1,500);
+%     hfmws = zeros(length(hfm),700); % hit fa miss with sessions
+%     hfmws(:,201:end) = hfm+2;
+%     sessions = [];
+% 
+%     for i = 1 : length(session_lengths{mouse})
+%         if mod(i,2) == 1
+%             sessions = [sessions; ones(session_lengths{mouse}(i),1)];
+%         else
+%             sessions = [sessions; ones(session_lengths{mouse}(i),1)*2];
+%         end
 %     end
+%     hfmws(:,1:200) = repmat(sessions,1,200);
+% 
+%     hfm_image = ind2rgb(hfmws,[0 0 0; 1 1 1; 0 1 0.5; 1 0 0.7; 0.8, 0.8, 0.8]);
+%     figure, imshow(hfm_image)
+    correct_rate_100{mouse} = zeros(length(hf{mouse}),1);
+    for i = 100 : length(hf{mouse})
+        correct_rate_100{mouse}(i) = sum(hf{mouse}(i-99:i));
+    end
 %     LearningEM(hf{mouse},ones(length(hf{mouse}),1),ones(length(hf{mouse}),1)/2);
 end
-
 %%
 figure, hold all
 for i = 1 : length(mice)
-    plot(1:length(hf{i}),correct_rate_100{i},'Color', [1 1 1] * (i/length(mice))* 0.5);
+%     plot(1:length(hf{i}),correct_rate_100{i},'Color', [1 1 1] * (i/length(mice))* 0.5);
+    plot(1:length(hf{i}),correct_rate_100{i},'Color', circshift([0.8 0.3 0.1], [0, i]), 'LineWidth', 2);
 end
+xlim([101 max(cellfun(@(x) length(x),correct_rate_100))]), legend('JK025', 'JK027', 'JK030')
+ax = gca; ax.LineWidth = 3; ax.FontWeight = 'bold'; ax.FontSize = 15; box off
+    xlabel('Trials'), ylabel('Correct rate (100 trials window)')
 %%
-for trial_num = 1:5;
-figure, plot(1:length(hf{trial_num}),smooth(correct_rate_100{trial_num}),'k-','LineWidth',2), hold on
-plot(1:length(hf{trial_num}),ones(1,length(hf{trial_num}))*50,':','Color',[0.5 0.5 0.5])
-for i = 2 : length(session_lengths_nomiss{trial_num})
-    plot(ones(1,100)*sum(session_lengths_nomiss{trial_num}(1:i-1)),1:100,'b:','LineWidth',2)
-end
-ylim([20 100]), xlabel('Trial #'), ylabel('Correct Rate in 100 trials (%)')
+for trial_num = 1:3
+    figure, plot(1:length(hf{trial_num}),smooth(correct_rate_100{trial_num}),'k-','LineWidth',2), hold on
+    plot(1:length(hf{trial_num}),ones(1,length(hf{trial_num}))*50,':','Color',[0.5 0.5 0.5])
+    for i = 2 : length(session_lengths_nomiss{trial_num})
+        plot(ones(1,100)*sum(session_lengths_nomiss{trial_num}(1:i-1)),1:100,'b:','LineWidth',2)
+    end
+    ylim([20 100]), xlabel('Trial #'), ylabel('Correct Rate in 100 trials (%)')
 end
 %%
 save('20170413.mat', 'session_lengths', 'session_lengths_nomiss','-append')
@@ -93,7 +106,7 @@ for i = 1 : length(save_error)
             flist = [flist; strcat(base_name, num2str(save_error(i)),'e.mat')];
     end
 end
-
+%%
 % Want to draw full session-length change of (1)percent correct, (2)d', (3)
 % max d'(60).
 % Plus, want to have total length trials concatenated with informations
@@ -109,8 +122,8 @@ total_maxdp = zeros(size(flist,1),1);
 whole_trial = zeros(size(flist,1),maxtrialpersession);
 for i = 1 : size(flist,1)
     fn = flist(i,:);
-    session_name = fn(end-10:end-5);
-    b = Solo.BehavTrial2padArray(fn, session_name);
+    
+    b = Solo.BehavTrial2padArray(fn);
     [pc, ~, dp] = performance(b);
     maxdp = maxdprime(b,60);
     
