@@ -13,6 +13,8 @@ classdef BehavTrial2padArray < handle
         mouseName = '';
         sessionName = '';
         sessionType = '';
+        taskTarget = '';
+        Distractor = '';
         trim = []; % The number of trials to trim from beginning and end.  e.g. trim = [2 20];
         performanceRegion = []; % Beginning and ending behavioral trial numbers for block of trials in which mouse is performing.
         trials = {};
@@ -65,9 +67,11 @@ classdef BehavTrial2padArray < handle
                 end
 
 
-                obj.mouseName = x.saved.SavingSection_MouseName;
+                obj.mouseName   = x.saved.SavingSection_MouseName;
                 obj.sessionName = x.saved.SavingSection_SessionName;
-
+                obj.sessionType = x.saved.SessionTypeSection_SessionType;
+                obj.taskTarget  = x.saved.SessionTypeSection_TaskTarget;
+                obj.Distractor  = x.saved.SessionTypeSection_Distractor;
                 n_trials = length(x.saved_history.AnalysisSection_NumTrials);
                 n=1;
                 savedfields = fieldnames(x.saved_history); % to use new merge_error_saved code, which made every fields to be used from saved_history 17/04/06 JK 

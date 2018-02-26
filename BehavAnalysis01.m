@@ -1,6 +1,8 @@
 %% 2017/04/12 Plotting total hit/wrong/miss, correct rate (100), learning EM, and session division
-behavior_base_dir = 'Z:\Data\2p\soloData\';
+behavior_base_dir = 'Y:\Whiskernas\JK_temp\SoloData\';
 mice = {'JK025','JK027','JK030'};
+% mice = {'JK036','JK039'};
+last_training_session = [21,28];
 hf = cell(1,length(mice)); 
 correct_rate_100 = cell(1,length(mice));
 session_lengths = cell(1,length(mice));
@@ -8,7 +10,8 @@ session_lengths_nomiss = cell(1,length(mice));
 for mouse = 1 : length(mice)
     d = [behavior_base_dir mice{mouse} '\'];
     cd(d)
-    load('behavior.mat') % loading b of the mouse (all the sessions)
+%     load('behavior.mat') % loading b of the mouse (all the sessions)
+    load(['behavior_',mice{mouse},'.mat']) % loading b of the mouse (all the sessions)    
     hfm = []; % hit fa miss
     session_names = cellfun(@(x) x.sessionName, b, 'UniformOutput', false);
     session_names = cellfun(@(x) str2double(x(2:3)),session_names);
@@ -21,8 +24,8 @@ for mouse = 1 : length(mice)
             for i = 1 : length(b)
                 if str2double(b{i}.sessionName(2:3)) == session_names(ii)
                     hfm = [hfm; b{i}.hitTrialInds' + b{i}.faTrialInds' * 2 + b{i}.missTrialInds' * 3];
-                    session_lengths{mouse}(i-1) = length(b{i}.hitTrialInds);
-                    session_lengths_nomiss{mouse}(i-1) = length(b{i}.hitTrialNums) + length(b{i}.faTrialNums);
+                    session_lengths{mouse}(i) = length(b{i}.hitTrialInds);
+                    session_lengths_nomiss{mouse}(i) = length(b{i}.hitTrialNums) + length(b{i}.faTrialNums);
                 end
             end
         end
@@ -54,7 +57,10 @@ for mouse = 1 : length(mice)
     for i = 100 : length(hf{mouse})
         correct_rate_100{mouse}(i) = sum(hf{mouse}(i-99:i));
     end
-%     LearningEM(hf{mouse},ones(length(hf{mouse}),1),ones(length(hf{mouse}),1)/2);
+%     LearningEM(hf{mouse},ones(length(hf{mouse}),1),ones(length(hf{mouse}),1)/2);    
+%     LearningEM(hf{mouse}(1:sum(session_lengths_nomiss{mouse}(1:last_training_session(mouse)))),1,0.5);
+%     LearningEM(hf{mouse},1,0.5);
+    
 end
 %%
 figure, hold all
@@ -62,11 +68,11 @@ for i = 1 : length(mice)
 %     plot(1:length(hf{i}),correct_rate_100{i},'Color', [1 1 1] * (i/length(mice))* 0.5);
     plot(1:length(hf{i}),correct_rate_100{i},'Color', circshift([0.8 0.3 0.1], [0, i]), 'LineWidth', 2);
 end
-xlim([101 max(cellfun(@(x) length(x),correct_rate_100))]), legend('JK025', 'JK027', 'JK030')
+xlim([101 max(cellfun(@(x) length(x),correct_rate_100))]), legend(mice{1}, mice{2})
 ax = gca; ax.LineWidth = 3; ax.FontWeight = 'bold'; ax.FontSize = 15; box off
     xlabel('Trials'), ylabel('Correct rate (100 trials window)')
 %%
-for trial_num = 1:3
+for trial_num = 1:length(mice)
     figure, plot(1:length(hf{trial_num}),smooth(correct_rate_100{trial_num}),'k-','LineWidth',2), hold on
     plot(1:length(hf{trial_num}),ones(1,length(hf{trial_num}))*50,':','Color',[0.5 0.5 0.5])
     for i = 2 : length(session_lengths_nomiss{trial_num})
@@ -147,12 +153,8 @@ for i = 1 : size(flist,1)
 %     total_prelick(i) = mean_prelick;
 %     total_rewardlick(i) = mean_rewardlick;
 
-    whole_trial(i,1:length(b.trilaNums)) = 
+%     whole_trial(i,1:length(b.trilaNums)) = 
 
 end
-
-
-
-
 
 save result_1.mat total_dp total_maxdp total_pc

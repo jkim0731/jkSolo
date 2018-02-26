@@ -167,4 +167,8 @@ end
  else
       cback = NaN;
  end
-save('resultsindividual');
+ % To name the result filename more specifically
+ % 2018-02-14 JK 
+ dirname = strsplit(pwd,'\');
+ dirname = dirname{end};
+save(['resultsindividual_', dirname]);
