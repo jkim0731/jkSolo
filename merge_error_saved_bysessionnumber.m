@@ -70,7 +70,7 @@ full_list = ls;
 list = []; % files matching to the session number information
 for i = 1 : size(full_list,1)
     [~,~,ext] = fileparts(full_list(i,:));
-    if ~contains(full_list(i,:),'autosave') && strcmp(ext,'.mat') && ~strcmp(full_list(i,end-4:end),'x.mat')
+    if isempty(strfind(full_list(i,:),'autosave')) && strcmp(ext,'.mat') && ~strcmp(full_list(i,end-4:end),'x.mat')
         load(full_list(i,:));
         if strcmp(sname,saved.SavingSection_SessionName)
             list = [list; full_list(i,:)];
@@ -88,12 +88,12 @@ end
 % every session. 2017/03/14 JK
 % need to merge only saved and saved_history structs
 savefn = sprintf('data_%s_%s.mat',mname,sname);
-for i = 1 : size(list,1)
-    if contains(list(i,:),savefn)
-        sprintf('%s is already post-processed',savefn)
-        return
-    end
-end
+% for i = 1 : size(list,1)
+%     if ~isempty(strfind(list(i,:),savefn))
+%         sprintf('%s is already post-processed',savefn)
+%         return
+%     end
+% end
 num_file = size(list,1);
 savedfields = cell(1,num_file);
 n_done_trials = zeros(1,num_file);

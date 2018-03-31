@@ -104,16 +104,32 @@ classdef BehavTrial2padArray < handle
                     sampling_period_time = x.saved_history.TimesSection_SamplingPeriodTime{k}; %AnswerPeriodTime is 2 sec minus SamplingPeriodTime.
                     rwater_valve_time = x.saved_history.ValvesSection_RWaterValveTime{k};
                     lwater_valve_time = x.saved_history.ValvesSection_LWaterValveTime{k};
-                    if isfield(x.saved_history, 'MotorsSection_previous_pole_distances')
-                        motor_distance = x.saved_history.MotorsSection_previous_pole_distances(k); % In stepper motor steps.
+                    if k == 1
+                        if isfield(x.saved_history, 'MotorsSection_previous_pole_distances')
+                            motor_distance = x.saved_history.MotorsSection_previous_pole_distances(k); % In stepper motor steps.
+                        else
+                            motor_distance = [];
+                        end
+                        
+                        if isfield(x.saved_history, 'MotorsSection_previous_pole_ap_positions')
+                            ap_motor_position = x.saved_history.MotorsSection_previous_pole_ap_positions(k); % In stepper motor steps.
+                        else
+                            ap_motor_position = [];
+                        end
                     else
-                        motor_distance = [];
+                        if isfield(x.saved_history, 'MotorsSection_motor_distance')
+                            motor_distance = x.saved_history.MotorsSection_motor_distance{k-1}; % In stepper motor steps.
+                        else
+                            motor_distance = [];
+                        end
+                        
+                        if isfield(x.saved_history, 'MotorsSection_ap_motor_position')
+                            ap_motor_position = x.saved_history.MotorsSection_ap_motor_position{k-1}; % In stepper motor steps.
+                        else
+                            ap_motor_position = [];
+                        end
                     end
-                    if isfield(x.saved_history, 'MotorsSection_previous_pole_ap_positions')
-                        ap_motor_position = x.saved_history.MotorsSection_previous_pole_ap_positions(k); % In stepper motor steps.
-                    else
-                        ap_motor_position = [];
-                    end
+                        
                     if isfield(x.saved_history, 'MotorsSection_previous_pole_angles')
                         try
                             servo_angle = x.saved_history.MotorsSection_previous_pole_angles(k); % In stepper motor steps.
