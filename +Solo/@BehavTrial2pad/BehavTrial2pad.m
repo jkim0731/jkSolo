@@ -29,6 +29,9 @@ classdef BehavTrial2pad < handle
         motorDistance = [];
         motorApPosition = [];
         servoAngle = [];
+        
+        taskTarget = '';
+        distractor = '';
 
     end
 
@@ -89,14 +92,16 @@ classdef BehavTrial2pad < handle
                 obj.sessionType = varargin{2};
                 obj.extraITIOnErrorSetting = varargin{3};
                 obj.samplingPeriodTimeSetting = varargin{4};
+                obj.taskTarget = varargin{5};
+                obj.distractor = varargin{6};
 
                 obj.answerPeriodTimeSetting = 2 - obj.samplingPeriodTimeSetting;
 
-                obj.rwaterValveTimeSetting = varargin{5};
-                obj.lwaterValveTimeSetting = varargin{6};
-                obj.motorDistance = varargin{7};
-                obj.motorApPosition = varargin{8};
-                obj.servoAngle = varargin{9};
+                obj.rwaterValveTimeSetting = varargin{7};
+                obj.lwaterValveTimeSetting = varargin{8};
+                obj.motorDistance = varargin{9};
+                obj.motorApPosition = varargin{10};
+                obj.servoAngle = varargin{11};
             end
         end
                

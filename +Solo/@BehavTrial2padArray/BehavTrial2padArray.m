@@ -14,7 +14,7 @@ classdef BehavTrial2padArray < handle
         sessionName = '';
         sessionType = '';
         taskTarget = '';
-        Distractor = '';
+        distractor = '';
         trim = []; % The number of trials to trim from beginning and end.  e.g. trim = [2 20];
         performanceRegion = []; % Beginning and ending behavioral trial numbers for block of trials in which mouse is performing.
         trials = {};
@@ -71,7 +71,7 @@ classdef BehavTrial2padArray < handle
                 obj.sessionName = x.saved.SavingSection_SessionName;
                 obj.sessionType = x.saved.SessionTypeSection_SessionType;
                 obj.taskTarget  = x.saved.SessionTypeSection_TaskTarget;
-                obj.Distractor  = x.saved.SessionTypeSection_Distractor;
+                obj.distractor  = x.saved.SessionTypeSection_Distractor;
                 n_trials = length(x.saved_history.AnalysisSection_NumTrials);
                 n=1;
                 savedfields = fieldnames(x.saved_history); % to use new merge_error_saved code, which made every fields to be used from saved_history 17/04/06 JK 
@@ -102,6 +102,10 @@ classdef BehavTrial2padArray < handle
                     session_type = x.saved_history.SessionTypeSection_SessionType{k};
                     extra_ITI_on_error = x.saved_history.TimesSection_ExtraITIOnError{k};
                     sampling_period_time = x.saved_history.TimesSection_SamplingPeriodTime{k}; %AnswerPeriodTime is 2 sec minus SamplingPeriodTime.
+                    
+                    taskTarget = x.saved_history.SessionTypeSection_TaskTarget{k};
+                    distractor = x.saved_history.SessionTypeSection_Distractor{k};
+                    
                     rwater_valve_time = x.saved_history.ValvesSection_RWaterValveTime{k};
                     lwater_valve_time = x.saved_history.ValvesSection_LWaterValveTime{k};
                     if k == 1
@@ -143,7 +147,7 @@ classdef BehavTrial2padArray < handle
                     if ismember(session_type, {'2port-Discrim'})  % For now limit only to Discrim trials
                          behav_trial = Solo.BehavTrial2pad(mouse_name, session_name, trial_num, trial_type,...
                             trial_correct, trial_events, next_trial_events, use_flag, session_type, extra_ITI_on_error,...
-                            sampling_period_time, rwater_valve_time, lwater_valve_time,...
+                            sampling_period_time, taskTarget, distractor, rwater_valve_time, lwater_valve_time,...
                             motor_distance, ap_motor_position, servo_angle);
                         
                         % In very rare cases, there are trials (a) scored as hits for which there is no
