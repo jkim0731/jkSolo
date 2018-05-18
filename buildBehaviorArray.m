@@ -6,6 +6,7 @@ base_dir = 'Y:\Whiskernas\JK_temp\SoloData\';
 
 
 for i = 1 : length(mice)
+% for i = 4
     d = [base_dir mice{i} '\'];
     cd(d)    
 %     merge_error_saved_bysessionnumber_mice(base_dir,mice)

@@ -87,7 +87,7 @@ classdef BehavTrial2padArray < handle
                     mouse_name = obj.mouseName;
                     session_name = obj.sessionName;
                     trial_num = str2num(x.saved_history.AnalysisSection_NumTrials{k}(end-3:end));
-                    trial_type = char([x.saved_history.SidesSection_previous_sides(k),x.saved_history.SidesSection_previous_dstrs(k)]); % 114 charcode for 'r', 108 for 'l'. 1 = S1 (right), 0 = S0 (left).
+                    trial_type = char([x.saved_history.SidesSection_previous_sides(k),x.saved_history.SidesSection_previous_dstrs(k)]); % 114 charcode for 'r', 108 for 'l'. 110 for 'n', 111 for 'o', 1 = S1 (right), 0 = S0 (left).
                     trial_correct = saved_hit_history(k); % 1 for correct, 0 for fa, -1 for miss.
                     trial_events = x.saved_history.RewardsSection_LastTrialEvents{k};
                     
@@ -154,10 +154,11 @@ classdef BehavTrial2padArray < handle
                         % answer lick and reward; or (b) with nothing but state 35 and state 40 entries. 
                         %  These are presumably due to stopping and starting Solo at odd times.
                         % Here we exclude these trials:
-                        if behav_trial.trialCorrect==1 && isempty(behav_trial.answerLickTime)
-                            disp(['Found trial (trial_num=' num2str(trial_num) ' scored as correct with no answerlick times---excluding.'])
-                        elseif isempty(behav_trial.poleDownOnsetTime)
-                            disp(['Found empty poleDownOnsetTime for trial_num=' num2str(trial_num) '---excluding.'])
+%                         if behav_trial.trialCorrect==1 && isempty(behav_trial.answerLickTime)
+                        if behav_trial.trialCorrect==1 && behav_trial.trialType(1) ~= 'o' && isempty(behav_trial.answerLickTime)
+                            disp(['Found trial # ', num2str(trial_num), ' in mouse ', mouse_name, ' scored as correct with no answerlick times---excluding.'])
+%                         elseif isempty(behav_trial.poleDownOnsetTime)
+%                             disp(['Found empty poleDownOnsetTime for trial_num=' num2str(trial_num) '---excluding.'])
                         else
                             obj.trials{n} = behav_trial;
                             n=n+1;

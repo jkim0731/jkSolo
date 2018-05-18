@@ -14,7 +14,7 @@ classdef BehavTrial2pad < handle
         mouseName = '';
         sessionName = '';
         trialNum  = [];
-        trialType = {}; % 2 chars indicating target and distractor ('rc', 'rf', 'lc', 'lf')
+        trialType = {}; % 2 chars indicating target and distractor ('rc', 'rf', 'lc', 'lf', 'rn', 'ln', 'ra', 'la', 'oo')
         trialCorrect = []; % 1 for hit, 0 for fa, -1 for miss
         trialEvents = [];
         nextTrialEvents = []; % Need to store trialEvents for next trial because licks in state 35 will largely
@@ -81,7 +81,7 @@ classdef BehavTrial2pad < handle
                 obj.mouseName = mouse_name;
                 obj.sessionName = session_name;
                 obj.trialNum  = trial_num;
-                obj.trialType = trial_type; % 2 chars indicating target and distractor ('rc', 'rf', 'lc', 'lf')
+                obj.trialType = trial_type; % 2 chars indicating target and distractor ('rc', 'rf', 'lc', 'lf', 'rn', 'ln', 'ra', 'la', 'oo')
                 obj.trialCorrect = trial_correct; % 1 for hit, 0 for fa, -1 for miss.
                 obj.trialEvents = trial_events;
                 obj.nextTrialEvents = next_trial_events;
@@ -216,13 +216,9 @@ classdef BehavTrial2pad < handle
                 
         function value = get.beamBreakTimesLeft(obj)
             trialEntryInd = find(obj.trialEvents(:,1)==40,1,'first'); % trialEvents(x,1) means state -> state 40 means trial start
-            % trialEvents(x,2) indicates the kind of event (number of
-            % column, and 0 means it has entered to that state noted by
-            % trialEvents(x,1).
-            breakInd = find(obj.trialEvents(:,2)== 1); % trialEvents(x,2) == 1 means
-            % licking left, 3 means licking right
-            breakInd = breakInd(breakInd >= trialEntryInd); % Limit to events occurring after the entry to
-            % to the current trial (state 40).
+            % trialEvents(x,2) indicates the kind of event (number of column, and 0 means it has entered to that state noted by trialEvents(x,1).
+            breakInd = find(obj.trialEvents(:,2)== 1); % trialEvents(x,2) == 1 means licking left, 3 means licking right
+            breakInd = breakInd(breakInd >= trialEntryInd); % Limit to events occurring after the entry to the current trial (state 40).
             breakTimes = obj.trialEvents(breakInd, 3) - obj.trialStartTime; % trialEvent(x,3) means timepoint.
             
             % Add beam breaks occuring in the subsequent intertrial interval:
@@ -244,13 +240,9 @@ classdef BehavTrial2pad < handle
                 
         function value = get.beamBreakTimesRight(obj)
             trialEntryInd = find(obj.trialEvents(:,1)==40,1,'first'); % trialEvents(x,1) means state -> state 40 means trial start
-            % trialEvents(x,2) indicates the kind of event (number of
-            % column, and 0 means it has entered to that state noted by
-            % trialEvents(x,1).
-            breakInd = find(obj.trialEvents(:,2)== 3); % trialEvents(x,2) == 1 means
-            % licking left, 3 means licking right
-            breakInd = breakInd(breakInd >= trialEntryInd); % Limit to events occurring after the entry to
-            % to the current trial (state 40).
+            % trialEvents(x,2) indicates the kind of event (number of column, and 0 means it has entered to that state noted by trialEvents(x,1).
+            breakInd = find(obj.trialEvents(:,2)== 3); % trialEvents(x,2) == 1 means licking left, 3 means licking right
+            breakInd = breakInd(breakInd >= trialEntryInd); % Limit to events occurring after the entry to to the current trial (state 40).
             breakTimes = obj.trialEvents(breakInd, 3) - obj.trialStartTime; % trialEvent(x,3) means timepoint.
             
             % Add beam breaks occuring in the subsequent intertrial interval:
@@ -408,19 +400,17 @@ classdef BehavTrial2pad < handle
 %             end
         end
         
-        function value = get.answerLickTime(obj)            % what is this function for?
-            value = 0;
-%             if obj.trialType==1 && obj.trialCorrect==1 % Hit 
-%                 value = obj.rewardTime;  % differs from reward onset time by at most 1/6000 sec (period of RTLinux server).  
-%                 if length(value) > 1 % Can be empty in rare trials (due to stopping/starting Solo) that will be excluded later when making BehavTrialArray.
-%                     value = value(1);
-%                 end
-% %                 value = obj.rewardTime(1); % differs from reward onset time by at most 1/6000 sec (period of RTLinux server).
-%             elseif obj.trialType==0 && obj.trialCorrect==0 % False Alarm.
-%                 value = obj.airpuffTimes{1}(1); % differs from onset of first airpuff time by at most 1/6000 sec (period of RTLinux server).
-%             else
-%                 value = []; % leave empty if trial is a correct rejection or a miss.
-%             end        
+        function value = get.answerLickTime(obj)            % what is this function for?            
+            if obj.trialCorrect == 1
+                value = obj.rewardTime;  % differs from reward onset time by at most 1/6000 sec (period of RTLinux server).  
+                if length(value) > 1 % Can be empty in rare trials (due to stopping/starting Solo) that will be excluded later when making BehavTrialArray.
+                    value = value(1);
+                end
+            elseif obj.trialCorrect == 0
+                value = obj.timeoutPeriodTimes{1}(1); % differs from onset of first airpuff time by at most 1/6000 sec (period of RTLinux server).
+            else
+                value = []; % leave empty if trial is a correct rejection or a miss.
+            end        
         end
 
         function value = get.trialStartTime(obj) % State 40 entry

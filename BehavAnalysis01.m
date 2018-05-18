@@ -1,6 +1,6 @@
 %% 2017/04/12 Plotting total hit/wrong/miss, correct rate (100), learning EM, and session division
 behavior_base_dir = 'Y:\Whiskernas\JK_temp\SoloData\';
-mice = {'JK025','JK027','JK030'};
+mice = {'JK025','JK027','JK030', 'JK036', 'JK039'};
 % mice = {'JK036','JK039'};
 last_training_session = [21,28];
 hf = cell(1,length(mice)); 
@@ -72,13 +72,15 @@ xlim([101 max(cellfun(@(x) length(x),correct_rate_100))]), legend(mice{1}, mice{
 ax = gca; ax.LineWidth = 3; ax.FontWeight = 'bold'; ax.FontSize = 15; box off
     xlabel('Trials'), ylabel('Correct rate (100 trials window)')
 %%
+close all
+sessions = [18, 7, 20, 16, 20];
 for trial_num = 1:length(mice)
-    figure, plot(1:length(hf{trial_num}),smooth(correct_rate_100{trial_num}),'k-','LineWidth',2), hold on
+    figure('Units', 'normalized', 'Position', [trial_num/10 trial_num/10 0.5 0.1]), plot(1:length(hf{trial_num}),smooth(correct_rate_100{trial_num}),'k-','LineWidth',2), hold on
     plot(1:length(hf{trial_num}),ones(1,length(hf{trial_num}))*50,':','Color',[0.5 0.5 0.5])
     for i = 2 : length(session_lengths_nomiss{trial_num})
         plot(ones(1,100)*sum(session_lengths_nomiss{trial_num}(1:i-1)),1:100,'b:','LineWidth',2)
     end
-    ylim([20 100]), xlabel('Trial #'), ylabel('Correct Rate in 100 trials (%)')
+    ylim([30 100]), xlim([100 sum(session_lengths_nomiss{trial_num}(1:sessions(trial_num)))]), xlabel('Trial #'), ylabel('Correct (%)')
 end
 %%
 save('20170413.mat', 'session_lengths', 'session_lengths_nomiss','-append')
