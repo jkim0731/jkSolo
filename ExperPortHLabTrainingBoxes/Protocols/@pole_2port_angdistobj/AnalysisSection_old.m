@@ -54,7 +54,7 @@ switch action
 
         % ---  Make new window for online analysis
         SoloParamHandle(obj, 'analysisfig', 'saveable', 0);
-        analysisfig.value = figure('Position', [1450 910 400 270], 'Menubar', 'none',...
+        analysisfig.value = figure('Position', [1450 900 400 200], 'Menubar', 'none',...
             'Toolbar', 'none','Name','Analysis','NumberTitle','off');
 
         x = 1; y = 1;
@@ -88,9 +88,9 @@ switch action
         set(value(poscoraxes), 'Position', [50 pos(4)-110 pos(3)-60 100]);
         set(value(poscoraxes), 'YTick', [0 0.5 1], 'YLim', [0 1], 'YTickLabel', ...
                         {'0', '0.5', '1'});
-        set(value(poscoraxes), 'XTick', -4:4, 'XLim', [-5 5], 'XTickLabel', ...
-                        {'-4','-3','-2','-1','0','1','2','3','4'});  
-        xlabel('position ctr (relative position from the center)');
+        set(value(poscoraxes), 'XTick', 1:2:17, 'XLim', [0 18], 'XTickLabel', ...
+                        {'1','3','5','7','9','11','13','15','17'});  
+        xlabel('position ctr (10Ks of Zaber units; 20K bins)');
         ylabel('frac correct');
         SoloParamHandle(obj, 'previous_poscor_plot', 'saveable', 0);
 
@@ -128,34 +128,34 @@ switch action
             nI60 = []; sL60 = [] ;sR60 = []; 
         end
         
-%         % quartile estimator -- assumption is that each extremal quartile
-%         %  is for one lickport.  Only consider trials w/ responses
-%         posrange = 0;
-%         sQ1 = []; sQ4= [];
-%         if (length(pole_distance_history) > 0 && range(pole_distance_history) > 0)
-%           % ORIGINAL
-%           %posrange = range(pole_distance_history);
-%           %posrangeq1 = min(pole_distance_history)*[1 1] + [0 posrange/4];
-%           %posrangeq4 = posrangeq1(1)*[1 1] + [.75 1]*posrange;
-%           
-%           % new -- just use 25th and 75th quantile QED
-%           q25 = quantile(pole_distance_history,.25);
-%           q75 = quantile(pole_distance_history,.75);
-%           posrangeq1 =  min(pole_distance_history)*[1 1] + [0 q25];
-%           posrangeq4 = [q75 max(pole_distance_history)];
-%           
-%           eq1i = find(pole_distance_history >= posrangeq1(1) & ...
-%                       pole_distance_history <= posrangeq1(2) & ...
-%                       correct >= 0);
-%           eq4i = find(pole_distance_history >= posrangeq4(1) & ...
-%                       pole_distance_history <= posrangeq4(2) & ...
-%                       correct >=0);
-%           disp(['EQ posrange: ' num2str(posrangeq1) ' and ' num2str(posrangeq4)]);
-%           if (length(eq1i) > 1 && length(eq4i) > 1)
-%               sQ1 = eq1i;
-%               sQ4 = eq4i;
-%           end
-%         end
+        % quartile estimator -- assumption is that each extremal quartile
+        %  is for one lickport.  Only consider trials w/ responses
+        posrange = 0;
+        sQ1 = []; sQ4= [];
+        if (length(pole_distance_history) > 0 && range(pole_distance_history) > 0)
+          % ORIGINAL
+          %posrange = range(pole_distance_history);
+          %posrangeq1 = min(pole_distance_history)*[1 1] + [0 posrange/4];
+          %posrangeq4 = posrangeq1(1)*[1 1] + [.75 1]*posrange;
+          
+          % new -- just use 25th and 75th quantile QED
+          q25 = quantile(pole_distance_history,.25);
+          q75 = quantile(pole_distance_history,.75);
+          posrangeq1 =  min(pole_distance_history)*[1 1] + [0 q25];
+          posrangeq4 = [q75 max(pole_distance_history)];
+          
+          eq1i = find(pole_distance_history >= posrangeq1(1) & ...
+                      pole_distance_history <= posrangeq1(2) & ...
+                      correct >= 0);
+          eq4i = find(pole_distance_history >= posrangeq4(1) & ...
+                      pole_distance_history <= posrangeq4(2) & ...
+                      correct >=0);
+          disp(['EQ posrange: ' num2str(posrangeq1) ' and ' num2str(posrangeq4)]);
+          if (length(eq1i) > 1 && length(eq4i) > 1)
+              sQ1 = eq1i;
+              sQ4 = eq4i;
+          end
+        end
         
         % --- compute parameters
         
@@ -163,7 +163,7 @@ switch action
         nt =     [length(sL) ...
                   length(sR) ...
                   length(sN) ...
-                  length(previous_sides(1:end-1))];
+                  length(previous_sides(1:end-1)) - length(find(previous_sides(1:end-1)=='o'))];
         ntNI =     [length(sLNI) ...
                   length(sRNI) ...
                   length(sN) ...
@@ -206,73 +206,43 @@ switch action
 %         dpLEQ = dprime(nrEQ(1)/ntEQ(1), niEQ(2)/ntEQ(2), ntEQ(1), ntEQ(2));
 %         dpREQ = dprime(nrEQ(2)/ntEQ(2), niEQ(1)/ntEQ(1), ntEQ(2), ntEQ(1));      
         
-        % %correct in position bins
-        posbin_countLeft = zeros(9,1);
-        posbin_countRight = zeros(9,1);        
-        posbin_frac_correctLeft = nan*zeros(9,1);
-        posbin_frac_correctRight = nan*zeros(9,1);        
-%         posbin = 0:20000:160000;
-        if length(previous_pole_ap_positions) > 1
-            noCatchTrialInds = find(previous_sides(2:end-1) == 108 | previous_sides(2:end-1) ==114)+1;
-            posbin = linspace(min(previous_pole_ap_positions(noCatchTrialInds)), max(previous_pole_ap_positions(noCatchTrialInds)),9);
-            binDiff = round(mean(diff(posbin)));
-            posbin_xvals = -4:4;
-
-            for pb=1:9
-                if (pb == length(posbin))
-                    idxL = find(previous_pole_ap_positions >= posbin(pb) & ...
-                               previous_pole_ap_positions <= posbin(pb)+binDiff & ...
-                               previous_sides(1:end-1) == 'l'); % because previous_pole_ap_positions is not updated yet
-                    idxR = find(previous_pole_ap_positions >= posbin(pb) & ...
-                               previous_pole_ap_positions <= posbin(pb)+binDiff & ...
-                               previous_sides(1:end-1) == 'r');       
-                else
-                    idxL = find(previous_pole_ap_positions >= posbin(pb) & ...
-                               previous_pole_ap_positions < posbin(pb)+binDiff & ...
-                               previous_sides(1:end-1) == 'l');
-                    idxR = find(previous_pole_ap_positions >= posbin(pb) & ...
-                               previous_pole_ap_positions < posbin(pb)+binDiff & ...
-                               previous_sides(1:end-1) == 'r');
-                end
-                posbin_countLeft(pb) = length(idxL);
-                posbin_countRight(pb) = length(idxR);
-                if ~isempty(idxL)
-                    n_correctL = length(find(hit_history(idxL) == 1));
-                    posbin_frac_correctLeft(pb)= n_correctL/length(idxL); % for now miss will be calculated as wrong 2018/05/14 JK
-                end
-                if ~isempty(idxR)
-                    n_correctR = length(find(hit_history(idxR) == 1));
-                    posbin_frac_correctRight(pb)= n_correctR/length(idxR);
-                end
-            end
-
-            % --- update plot
-            if ~isempty(value(previous_poscor_plot)), delete(previous_poscor_plot(:)); end;
-            if isempty(previous_sides), return; end;
-
-            % BLUE dots for Right
-            xvals = posbin_xvals;
-            yvalsRight = posbin_frac_correctRight;
-
-            hb = line(xvals,yvalsRight, 'Parent', value(poscoraxes));
-            set(hb, 'Color', 'b', 'Marker', '.', 'LineStyle', 'none');
-
-            % GREEN dots for Left
-            yvalsLeft = posbin_frac_correctLeft;
-
-            hg = line(xvals,yvalsLeft, 'Parent', value(poscoraxes));
-            set(hg, 'Color', 'g', 'Marker', '.', 'LineStyle', 'none');
-
-
-          %  arange = axis;
-         %   
-        %    plot([arange(1) arange(2)], [0.5 0.5], 'k:');
-
-%             previous_poscor_plot.value = [hb;hg];
-            previous_poscor_plot.value = [hb;hg];            
-
-            drawnow;
-        end
+%         % %correct in position bins
+%         posbin_count = zeros(9,1);
+%         posbin_frac_correct = nan*zeros(9,1);
+%         posbin = 0:20000:160000;        
+%         posbin_xvals = 1:2:17;
+%         for pb=1:9
+%             if (pb == length(posbin))
+%                 idx = find(pole_distance_history >= posbin(pb) & ...
+%                            pole_distance_history <= posbin(pb)+20000);
+%             else
+%                 idx = find(pole_distance_history >= posbin(pb) & ...
+%                            pole_distance_history < posbin(pb)+20000);
+%             end
+%             posbin_count(pb) = length(idx);
+%             if (length(idx)>0)
+%               n_correct = length(find(hit_history(idx) == 1));
+%               posbin_frac_correct(pb)= n_correct/length(idx);
+%             end
+%         end
+        
+        % --- update plot
+%         if ~isempty(value(previous_poscor_plot)), delete(previous_poscor_plot(:)); end;
+%         if isempty(previous_sides), return; end;
+% 
+%         % BLUE dots
+%         xvals = posbin_xvals;
+%         yvals = posbin_frac_correct;
+%         
+%         hb = line(xvals,yvals, 'Parent', value(poscoraxes));
+%         set(hb, 'Color', 'b', 'Marker', '.', 'LineStyle', 'none');
+%       %  arange = axis;
+%      %   
+%     %    plot([arange(1) arange(2)], [0.5 0.5], 'k:');
+%       
+%         previous_poscor_plot.value = [hb];
+% 
+%         drawnow;
       
         % --- update strings
         NumTrials.value = sprintf('%04d  %04d  %04d', nt(1), nt(2), nt(4));

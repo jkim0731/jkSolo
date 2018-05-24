@@ -153,10 +153,64 @@ switch action
                b+2   b+2  b+1  b+2   35  lwvtm  wvLid   0  ; ... % licked left -- reward left
                ];
         
-       case 'Piezo stimulation' % 10 Hz 2 sec for now 2017/10/03
+       case 'Piezo stimulation' % 5 Hz 3 sec 2018/05/10
+           
+            baselineTime = 3; % in sec            
+            bittm = 0.002; % bit time
+            gaptm = 0.005; % gap (inter-bit) time
+            numbits = 12; %2^11=2048 possible trial nums
+            bitcodeTime = (bittm + gaptm) * numbits;
+            stimDur = 5; % in sec
+            afterTime = 2;
+            % laser OFF time will be 3 sec, so the total cycle is 10 sec
+            % per trial, and duty cycle is 70%. 
+           
+           stm = [stm;               
+               b       b       b       b       101      0.01                            slid       0   ; ... % bitcode
+               b+1     b+1     b+1     b+1     b+2      baselineTime - bitcodeTime      0       0   ; ... % 2 sec baseline
+               b+2     b+2     b+2     b+2     b+3       stimDur                         etid    0   ; ... % ephus stimulation by slid, TTL0 by slid and TTL1 by durid for TPM (every states except for 35 will be padded with durid.
+               b+3      b+3     b+3     b+3     35      afterTime                       0       0   ];
+           
+           trialnum = n_done_trials + 1;
+%            x = double(dec2binvec(trialnum)');
+%            x = double(dec2binvec(trialnum * 2 + 1)'); % + 1 bit for
+%            arrival indication 02/22/16 JK for scanbox
+
+           x = double(dec2binvec(trialnum * 2)'); % insert 0 before start, 
+%            because slid was on when pole is up and it did not turn to 0
+%            yet. 2017/05/18 JK. No ambiguity about bitcode arrival for
+%            now, because the scanbox is receiving 3 for pole up and 2 for
+%            pole down. First gap time is 10 ms (sBC TimeupSt).
+
+           % + 1 before LSB to signal when the code has been sent %
+           % 02/22/16 JK for scanbox 
+
+           if length(x) < numbits
+               x = [x; repmat(0, [numbits-length(x) 1])];
+           end
+           % x is now 10-bit vector giving trial num, LSB first (at top).
+           % + 1 before LSB to signal when the code has been sent %
+           % 02/22/16 JK for scanbox 
+           x(x==1) = slid;
+           
+           % Insert a gap state between bits, to make reading bit pattern clearer:
+           x=[x zeros(size(x))]';
+           x=reshape(x,numel(x),1);
+           
+           y = (101:(100+2*numbits))';
+           t = repmat([bittm; gaptm],[numbits 1]);
+           m = [y y y y y+1 t x zeros(size(y))];
+           m(end,5) = b+1; 
+           
+           stm = [stm; zeros(101-rows(stm),8)];
+           stm = [stm; m]; % m starts at 102nd row of the final stm (sending bitcode)
+           stm(b:end,7) = stm(b:end,7) + durid; % pad all Dout with durid, except for state 35 and 0. sBC = 40; Indicating duration of whisker video imaging.
+           
+       case 'Passive Pole' 
            stm = [stm;
-               b    b   b   b   b+1 5    0       0   ; ... % 5 sec baseline
-               b+1  b+1 b+1 b+1 35 4   slid+durid    0   ]; % ephus stimulation by slid, TTL0 by slid and TTL1 by durid for TPM
+               b    b   b   b   b+1 5   0   0   ;   ...
+               b+1  b+1 b+1 b+1 b+2  2   slid+durid+pvid     0  ;   ...
+               b+2  b+2 b+2 b+2 35  3   slid+durid  0   ];
                
 %        case 'Beam-Break-Indicator'
 %            stm = [stm ;
@@ -254,10 +308,16 @@ switch action
                onlickL = sPun; % incorrect
                onlickR = sRwR; % correct
                water_t = RWaterValveTime; % Defined in ValvesSection.m.  
-           else %left 
+           elseif next_side == 'l' % left trial.
                onlickR = sPun; % punish
                onlickL = sRwL; % water to left port
                water_t = LWaterValveTime; % Defined in ValvesSection.m.  
+           elseif next_side == 'o' % catch trial (no-go)
+               onlickR = sPun; % punish
+               onlickL = sPun; % punish               
+               water_t = 0;
+           else
+               error('next_side not decided.')
            end  
            
            % Disable reward?  If so, do it by setting wv
@@ -409,16 +469,15 @@ switch action
            R_m(end,5) = 35; % jump to state 35.
            stm = [stm; zeros(201-rows(stm),8)];
            stm = [stm; R_m];
-          
-                    
+       
+         stm(sBC:end,7) = stm(sBC:end,7) + durid; % pad all Dout with durid, except for state 35 and 0. sBC = 40; Indicating duration of whisker video imaging.
+    
        otherwise
-           error('Invalid training session type')
-   end
+            error('Invalid training session type')
+    end
    
-   stm = [stm; zeros(512-rows(stm),8)];
-   if strcmp(SessionType,'2port-Discrim')
-    stm(sBC:end,7) = stm(sBC:end,7) + durid; % pad all Dout with durid, except for state 35 and 0. sBC = 40; Indicating duration of whisker video imaging.
-   end
+    stm = [stm; zeros(512-rows(stm),8)];
+    
    
    rpbox('send_matrix', stm);
    state_matrix.value = stm;

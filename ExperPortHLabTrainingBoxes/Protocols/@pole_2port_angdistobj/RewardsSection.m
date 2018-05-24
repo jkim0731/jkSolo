@@ -21,14 +21,24 @@
       % Take the current raw events and push them into the history:
       push_history(LastTrialEvents); LastTrialEvents.value = [];
       
-      if rows(pstruct.punish)>0 
-          hit = 0;
-      elseif rows(pstruct.miss)>0 
-          hit = -1;
+      % miss in no-go catch trial is a hit
+      if previous_sides(end) == 'o' % no-go catch trial
+          if rows(pstruct.punish)>0 
+              hit = 0;
+          elseif rows(pstruct.miss)>0 
+              hit = 1;
+          else
+              hit = 1;
+          end
       else
-          hit = 1;
-      end
-      
+          if rows(pstruct.punish)>0 
+              hit = 0;
+          elseif rows(pstruct.miss)>0 
+              hit = -1;
+          else
+              hit = 1;
+          end
+      end      
       
       hh = hit_history(:);
       hh(n_started_trials) = hit;

@@ -41,7 +41,8 @@ function [x, y] = SessionTypeSection(obj, action, x, y)
 
       MenuParam(obj, 'SessionType', {'Licking','2port-Discrim',...
           'LWater-Valve-Calibration','RWater-Valve-Calibration',...
-          'Piezo stimulation' ... % 2017/10/01 JK
+          'Piezo stimulation', ... % 2017/10/01 JK
+          'Passive Pole' ... % 2017/10/30 JK
 %           'Beam-Break-Indicator', ... % 2016/05/23 JK
           },'2port-Discrim', x, y);
       
@@ -61,6 +62,13 @@ function [x, y] = SessionTypeSection(obj, action, x, y)
       SoloFunctionAddVars('MotorsSection', 'ro_args', {'Distractor'});
       SoloFunctionAddVars('SidesSection', 'ro_args', {'Distractor'});
       next_row(y,1);
+      
+      MenuParam(obj, 'Catch', {'On', 'Off'},'On',x,y); 
+      SoloFunctionAddVars('MotorsSection', 'ro_args', {'Catch'});
+      SoloFunctionAddVars('SidesSection', 'ro_args', {'Catch'});
+      SoloFunctionAddVars('MotorsSection', 'ro_args', {'Catch'});
+      next_row(y,1);
+      
       
       % For imaging
       MenuParam(obj, 'TPM_imaging', {'Normal','Block'},'Normal',x,y); 

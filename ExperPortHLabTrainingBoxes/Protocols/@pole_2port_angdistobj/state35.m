@@ -23,7 +23,7 @@ if strcmp(SessionType, '2port-Discrim')
     judp('SEND', 6610, '68.181.114.170', [int8('Action0101[Stop Record()]:'), int8(num2str(double(n_done_trials)+1))])
     
     if strcmp(TPM_imaging, 'Block')
-        block_length = 50;
+        block_length = 5;
         if floor((n_done_trials)/block_length) > floor((n_done_trials - 1)/block_length)
             judp('SEND', 7000, '68.181.112.192', [int8('L0') 10]); 
             if mod(floor((n_done_trials)/block_length),2) 
@@ -36,7 +36,7 @@ if strcmp(SessionType, '2port-Discrim')
                 judp('SEND', 7000, '68.181.112.192', [int8('IA') 10]); 
             end
             judp('SEND', 7000, '68.181.112.192', [int8('L0') 10]); 
-            pause(3); % wait for 3 sec when the objective has moved
+            pause(1); % wait for 1 sec when the objective has moved
         else
             judp('SEND', 7000, '68.181.112.192', [int8('L0') 10]); 
             pause(1); % laser blanking, and pausing for extra 1 sec
@@ -45,11 +45,14 @@ if strcmp(SessionType, '2port-Discrim')
         judp('SEND', 7000, '68.181.112.192', [int8('L0') 10]); 
         pause(1); % laser blanking, and pausing for extra 1 sec
     end        
-elseif strcmp(SessionType, 'Piezo stimulation')
-    pause(5); % 5 sec after-stimulation imaging (5 sec baseline, 2 sec stimulation, 5 sec after-stimulation)
+elseif strcmp(SessionType, 'Piezo stimulation') 
     judp('SEND', 6610, '68.181.114.170', [int8('Action0101[Stop Record()]:'), int8(num2str(double(n_done_trials)+1))])
     judp('SEND', 7000, '68.181.112.192', [int8('L0') 10]); 
-    pause(3); % wait for 3 sec with laser blanking
+    pause(5); % wait for 3 sec with laser blanking
+elseif strcmp(SessionType, 'Passive Pole')
+    judp('SEND', 6610, '68.181.114.170', [int8('Action0101[Stop Record()]:'), int8(num2str(double(n_done_trials)+1))])
+    judp('SEND', 7000, '68.181.112.192', [int8('L0') 10]); 
+    pause(3); % wait for 3 sec with laser blanking    
 end
 % SoloFunctionAddVars('state35', 'rw_args', 'n_done_trials', ...
 %         'ro_args', 'trial_finished_actions');
@@ -82,11 +85,12 @@ disp(['trial num ',num2str(double(n_started_trials)), ' started'])
 % end
 
 % 2016/07/04 JK for whisker video notation
-if strcmp(SessionType, '2port-Discrim') || strcmp(SessionType, 'Piezo stimulation')
+if strcmp(SessionType, '2port-Discrim') || strcmp(SessionType, 'Piezo stimulation') || strcmp(SessionType, 'Passive Pole')
     trialnumstr = strcat('M',num2str(double(n_started_trials)));
     judp('SEND', 7000, '68.181.112.192', [int8(trialnumstr) 10])
     judp('SEND', 7000, '68.181.112.192', [int8('L1') 10]); % re-open the laser
     judp('SEND', 6610, '68.181.114.170', [int8('Action0101[create new sequence and start recording()]:'), int8(num2str(double(n_started_trials)))])
+    pause(0.1)
 end
 % trialnumstr = strcat('S',num2str(double(n_started_trials)));
 
