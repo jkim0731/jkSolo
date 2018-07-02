@@ -2,10 +2,10 @@
 mice = {'JK025','JK027','JK030','JK036','JK037','JK038','JK039','JK041'};
 % mice = {'JK036','JK037','JK038','JK039','JK041'};
 % mice = {'JK036','JK039'};
-base_dir = 'Y:\Whiskernas\JK_temp\SoloData\';
+base_dir = 'E:\SoloData\';
 
 
-for i = 1 : length(mice)
+for i = 4 : length(mice)
 % for i = 4
     d = [base_dir mice{i} '\'];
     cd(d)    

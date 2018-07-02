@@ -86,7 +86,8 @@ classdef BehavTrial2padArray < handle
                     % Required arguments to BehavTrial2AFC_angdist():
                     mouse_name = obj.mouseName;
                     session_name = obj.sessionName;
-                    trial_num = str2num(x.saved_history.AnalysisSection_NumTrials{k}(end-3:end));
+%                     trial_num = str2num(x.saved_history.AnalysisSection_NumTrials{k}(end-3:end));
+                    trial_num = k;
                     trial_type = char([x.saved_history.SidesSection_previous_sides(k),x.saved_history.SidesSection_previous_dstrs(k)]); % 114 charcode for 'r', 108 for 'l'. 110 for 'n', 111 for 'o', 1 = S1 (right), 0 = S0 (left).
                     trial_correct = saved_hit_history(k); % 1 for correct, 0 for fa, -1 for miss.
                     trial_events = x.saved_history.RewardsSection_LastTrialEvents{k};
