@@ -660,7 +660,7 @@ classdef BehavTrial2padArray < handle
         
         function value = get.fractionCorrect(obj)
             if ~isempty(obj.trials)
-                value = mean(obj.trialCorrects);
+                value = length(obj.hitTrialNums)/(length(obj.hitTrialNums) + length(obj.faTrialNums));
             else
                 value = [];
             end

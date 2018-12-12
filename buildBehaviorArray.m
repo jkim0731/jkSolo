@@ -1,6 +1,6 @@
 
-mice = {'JK052','JK053','JK054','JK056'};
-base_dir = 'Y:\Whiskernas\JK_temp\SoloData\';
+mice = {'JK070'};
+base_dir = 'Y:\Whiskernas\JK\SoloData\';
 merge_error_saved_bysessionnumber_mice(base_dir,mice)
 
 for i = 1 : length(mice)
