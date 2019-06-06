@@ -39,7 +39,7 @@ classdef BehavTrial < handle
         trialTriggerTimeCamera = []; 
         rewardTime = []; % [startTime stopTime]
         airpuffTimes = {}; % Cell array of {[startTime1 stopTime1],[startTime2 stopTime2],...} 
-        pinDescentOnsetTime = []; 
+        pinDescentOnsetTime = []; ;
         pinAscentOnsetTime = []; 
         
         samplingPeriodTime = []; % Retrieved from event matrix
@@ -183,11 +183,15 @@ classdef BehavTrial < handle
     methods % Dependent property methods; cannot have attributes.    
         
         function value = get.beamBreakTimes(obj)
-            trialEntryInd = find(obj.trialEvents(:,1)==40,1,'first');
-            breakInd = find(obj.trialEvents(:,2)==1); % Limit to events occurring after the entry to
+            trialEntryInd = find(obj.trialEvents(:,1)==40,1,'first'); % trialEvents(x,1) means state -> state 40 means trial start
+            % trialEvents(x,2) indicates the kind of event (number of
+            % column, and 0 means it has entered to that state noted by
+            % trialEvents(x,1).
+            breakInd = find(obj.trialEvents(:,2)==1); % trialEvents(x,2) == 1 means
+            % licking
+            breakInd = breakInd(breakInd >= trialEntryInd); % Limit to events occurring after the entry to
             % to the current trial (state 40).
-            breakInd = breakInd(breakInd >= trialEntryInd);
-            breakTimes = obj.trialEvents(breakInd, 3) - obj.trialStartTime;
+            breakTimes = obj.trialEvents(breakInd, 3) - obj.trialStartTime; % trialEvent(x,3) means timepoint.
             
             % Add beam breaks occuring in the subsequent intertrial interval:
             if ~isempty(obj.nextTrialEvents)
@@ -220,8 +224,8 @@ classdef BehavTrial < handle
         function value = get.rewardTime(obj)% State 43 entries and exits
             trial_events = obj.trialEvents;
             
-            rowIndStart = find(trial_events(:,1)==44 & trial_events(:,2)==0, 1, 'first');
-            rowIndStop = find(trial_events(:,1)==44 & trial_events(:,2)==3, 1, 'first'); % Timeout code = 3;
+            rowIndStart = find(trial_events(:,1)==43 & trial_events(:,2)==0, 1, 'first');
+            rowIndStop = find(trial_events(:,1)==43 & trial_events(:,2)==3, 1, 'first'); % Timeout code = 3;
 
             if ~isempty(rowIndStart)
                 value = [trial_events(rowIndStart, 3), trial_events(rowIndStop, 3)] - obj.trialStartTime;
@@ -233,8 +237,8 @@ classdef BehavTrial < handle
         function value = get.drinkingTime(obj)% State 44 entries and exits
             trial_events = obj.trialEvents;
             
-            rowIndStart = find(trial_events(:,1)==45 & trial_events(:,2)==0, 1, 'first');
-            rowIndStop = find(trial_events(:,1)==45 & trial_events(:,2)==3, 1, 'first'); % Timeout code = 3;
+            rowIndStart = find(trial_events(:,1)==44 & trial_events(:,2)==0, 1, 'first');
+            rowIndStop = find(trial_events(:,1)==44 & trial_events(:,2)==3, 1, 'first'); % Timeout code = 3;
 
             if ~isempty(rowIndStart)
                 value = [trial_events(rowIndStart, 3), trial_events(rowIndStop, 3)] - obj.trialStartTime;
@@ -297,8 +301,8 @@ classdef BehavTrial < handle
 
         function value = get.samplingPeriodTime(obj)% State 41 entries and exits
             trial_events = obj.trialEvents;
-            rowIndStart = find(trial_events(:,1)==42 & trial_events(:,2)==0, 1, 'first');
-            rowIndStop = find(trial_events(:,1)==42 & trial_events(:,2)==3, 1, 'first'); % Timeout code = 3;
+            rowIndStart = find(trial_events(:,1)==41 & trial_events(:,2)==0, 1, 'first');
+            rowIndStop = find(trial_events(:,1)==41 & trial_events(:,2)==3, 1, 'first'); % Timeout code = 3;
             if ~isempty(rowIndStart)
                 value = [trial_events(rowIndStart, 3), trial_events(rowIndStop, 3)] - obj.trialStartTime;
             else
@@ -308,8 +312,8 @@ classdef BehavTrial < handle
         
         function value = get.answerPeriodTime(obj)% State 42 entries and exits
             trial_events = obj.trialEvents;
-            rowIndStart = find(trial_events(:,1)==43 & trial_events(:,2)==0, 1, 'first');
-            rowIndStop = find(trial_events(:,1)==43 & ismember(trial_events(:,2), [1 2 3]), 1, 'first'); % Can exit via timeout, lick in, or lick out
+            rowIndStart = find(trial_events(:,1)==42 & trial_events(:,2)==0, 1, 'first');
+            rowIndStop = find(trial_events(:,1)==42 & ismember(trial_events(:,2), [1 2 3]), 1, 'first'); % Can exit via timeout, lick in, or lick out
             if ~isempty(rowIndStart)
                 value = [trial_events(rowIndStart, 3), trial_events(rowIndStop, 3)] - obj.trialStartTime;
             else
@@ -318,8 +322,8 @@ classdef BehavTrial < handle
         end
 
 
-        function value = get.pinDescentOnsetTime(obj) % State 41 entry
-            rowInd = find(obj.trialEvents(:,1)==42,1);
+        function value = get.pinDescentOnsetTime(obj) % State 41 entry % pole presentation
+            rowInd = find(obj.trialEvents(:,1)==41,1);
             if ~isempty(rowInd)
                 value = obj.trialEvents(rowInd, 3) - obj.trialStartTime;
             else
@@ -327,8 +331,8 @@ classdef BehavTrial < handle
             end
         end
           
-        function value = get.pinAscentOnsetTime(obj) % State 48 entry
-            rowInd = find(obj.trialEvents(:,1)==49,1);
+        function value = get.pinAscentOnsetTime(obj) % State 48 entry % pole out
+            rowInd = find(obj.trialEvents(:,1)==48,1);
             if ~isempty(rowInd)
                 value = obj.trialEvents(rowInd, 3) - obj.trialStartTime;
             else

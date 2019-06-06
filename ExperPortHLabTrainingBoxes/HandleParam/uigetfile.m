@@ -196,7 +196,7 @@ end % end useNative
 
 
 %%%%%%%%%%%%%%%%%
-% General globals
+% General globals 
 %%%%%%%%%%%%%%%%%
 
 multiPosition    = '' ;

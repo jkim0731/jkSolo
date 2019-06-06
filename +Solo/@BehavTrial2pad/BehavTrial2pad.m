@@ -15,7 +15,7 @@ classdef BehavTrial2pad < handle
         sessionName = '';
         trialNum  = [];
         trialType = {}; % 2 chars indicating target and distractor ('rc', 'rf', 'lc', 'lf', 'rn', 'ln', 'ra', 'la', 'oo')
-        trialCorrect = []; % 1 for hit, 0 for fa, -1 for miss
+        trialCorrect = []; % 1 for hit, 0 for fa, -1 for miss        
         trialEvents = [];
         nextTrialEvents = []; % Need to store trialEvents for next trial because licks in state 35 will largely
                               % be associated with next trial.
@@ -61,6 +61,8 @@ classdef BehavTrial2pad < handle
         trialStartTime = [];
         drinkingTime = []; % 2 s minus water valve time, to give mouse time to drink before proceeding w/ next trial.
         timeoutPeriodTimes = [];
+        
+        choice = ''; % 'l' for left, 'r' for right, 'm' for miss ('e' for error)
         
         % Add:
         % RTFromEndOfSampling;
@@ -419,6 +421,20 @@ classdef BehavTrial2pad < handle
                 value = obj.trialEvents(rowInd, 3);
             else
                 value = [];
+            end
+        end
+        
+        function value = get.choice(obj) % 'l' for left, 'r' for right, 'm' for miss ('e' for error)
+            if isempty(obj.answerLickTime)
+                value = 'm';
+            else
+                if ismember(obj.answerLickTime, obj.beamBreakTimesLeft)
+                    value = 'l';
+                elseif ismember(obj.answerLickTime, obj.beamBreakTimesRight)
+                    value = 'r';
+                else
+                    value = 'e'; % error
+                end
             end
         end
 

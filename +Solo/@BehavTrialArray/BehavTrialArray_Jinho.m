@@ -73,10 +73,9 @@ classdef BehavTrialArray < handle
                     trial_num = x.saved_history.AnalysisSection_NumTrials{k};
                     trial_type = x.saved.SidesSection_previous_sides(k) == 114; % 114 charcode for 'r', 108 for 'l'. 1 = S1 (go), 0 = S0 (nogo).
                     
-%                     trial_correct = saved_hit_history(k);
-                    if isfield(x.saved, saved_hit_history)
-                        trial_correct = x.saved.pole_contdiscrim_jzobj_hit_history(k);
-                    end
+                    trial_correct = saved_hit_history(k);
+%                     if isfield(x.saved, 'pole_2port_angdistobj_hit_history')
+%                         trial_correct = x.saved.pole_2port_angdistobj_hit_history(k);
 %                     elseif isfield(x.saved, 'pole_discrim_SAHobj_hit_history')
 %                         trial_correct = x.saved.pole_discrim_SAHobj_hit_history(k);
 %                     elseif isfield(x.saved, 'pole_detect_nx2obj_hit_history')
@@ -104,10 +103,10 @@ classdef BehavTrialArray < handle
                     else
                         motor_position = [];
                     end
-                    nogo_position = x.saved_history.MotorsSection_no_pole_position_ant{k}; % In stepper motor steps.
-                    go_position = x.saved_history.MotorsSection_yes_pole_position_ant{k}; % In stepper motor steps.
+%                     nogo_position = x.saved_history.MotorsSection_nogo_position{k}; % In stepper motor steps.
+%                     go_position = x.saved_history.MotorsSection_go_position{k}; % In stepper motor steps.
 
-                    if ismember(session_type, {'Discrim','Program-Timed-Discrim','Detection','Discrim_DHO'})  % For now limit only to Discrim trials
+                    if ismember(session_type, {'Discrim','Program-Timed-Discrim','Detection'})  % For now limit only to Discrim trials
                         % 'Program-Timed-Discrim' was old name for
                         % 'Discrim'.
                          behav_trial = Solo.BehavTrial(mouse_name, session_name, trial_num, trial_type,...
@@ -121,8 +120,8 @@ classdef BehavTrialArray < handle
                         % Here we exclude these trials:
                         if behav_trial.trialType==1 && behav_trial.trialCorrect==1 && isempty(behav_trial.answerLickTime)
                             disp(['Found trial (trial_num=' num2str(trial_num) ' scored as hit with no answerlick times---excluding.'])
-%                         elseif isempty(behav_trial.pinAscentOnsetTime)
-%                             disp(['Found empty pinAscentOnsetTime for trial_num=' num2str(trial_num) '---excluding.'])
+                        elseif isempty(behav_trial.pinAscentOnsetTime)
+                            disp(['Found empty pinAscentOnsetTime for trial_num=' num2str(trial_num) '---excluding.'])
                         else
                             obj.trials{n} = behav_trial;
                             n=n+1;
@@ -720,7 +719,7 @@ classdef BehavTrialArray < handle
             %
             % varargin: optional vector of trial numbers.
             %
-            r = cellfun(@(x) x.pinDescentOnsetTime, obj.trials); 
+            r = cellfun(@(x) x.pinDescentOnsetTime, obj.trials);
             if nargin>1
                 r = r(ismember(obj.trialNums, varargin{1}));
             end
