@@ -433,7 +433,17 @@ classdef BehavTrial2pad < handle
                 elseif ismember(obj.answerLickTime, obj.beamBreakTimesRight)
                     value = 'r';
                 else
-                    value = 'e'; % error
+                    if strcmp(obj.trialType(1), 'r') && obj.trialCorrect
+                        value = 'r';
+                    elseif strcmp(obj.trialType(1), 'r') && obj.trialCorrect==0
+                        value = 'l';
+                    elseif strcmp(obj.trialType(1), 'l') && obj.trialCorrect
+                        value = 'l';
+                    elseif strcmp(obj.trialType(1), 'l') && obj.trialCorrect==0
+                        value = 'r';
+                    else
+                        value = 'e'; % error
+                    end
                 end
             end
         end
